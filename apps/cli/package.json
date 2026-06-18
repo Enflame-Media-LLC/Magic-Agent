@@ -72,7 +72,7 @@
     "postinstall": "node scripts/unpack-tools.cjs"
   },
   "dependencies": {
-    "@agentclientprotocol/sdk": "^0.24.0",
+    "@agentclientprotocol/sdk": "^0.28.0",
     "@magic-agent/errors": "workspace:*",
     "@magic-agent/protocol": "workspace:*",
     "@modelcontextprotocol/sdk": "^1.29.0",
