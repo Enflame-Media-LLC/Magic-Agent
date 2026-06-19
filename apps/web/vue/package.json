@@ -108,7 +108,7 @@
     "@percy/playwright": "^1.1.0",
     "@playwright/test": "^1.60.0",
     "@types/jszip": "^3.4.1",
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.0.0",
     "@vitejs/plugin-vue": "^6.0.7",
     "@vue/test-utils": "^2.4.10",
     "@wdio/allure-reporter": "^9.27.2",
