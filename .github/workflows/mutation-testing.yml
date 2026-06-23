@@ -71,7 +71,7 @@ jobs:
         working-directory: .
 
       - name: Cache yarn dependencies
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: |
             ${{ steps.yarn-cache-dir.outputs.dir }}
@@ -82,7 +82,7 @@ jobs:
 
       - name: Restore Stryker incremental cache
         if: ${{ !inputs.full_run }}
-        uses: actions/cache/restore@v5
+        uses: actions/cache/restore@v6
         with:
           path: apps/server/workers/reports/mutation/stryker-incremental.json
           key: stryker-workers-${{ runner.os }}-${{ hashFiles('apps/server/workers/src/**/*.ts') }}
@@ -112,7 +112,7 @@ jobs:
 
       - name: Save Stryker incremental cache
         if: always()
-        uses: actions/cache/save@v5
+        uses: actions/cache/save@v6
         with:
           path: apps/server/workers/reports/mutation/stryker-incremental.json
           key: stryker-workers-${{ runner.os }}-${{ hashFiles('apps/server/workers/src/**/*.ts') }}-${{ github.sha }}
