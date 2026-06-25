@@ -74,7 +74,7 @@
     "@vueuse/core": "^14.3.0",
     "@zxing/browser": "^0.2.0",
     "@zxing/library": "^0.23.0",
-    "ai": "^6.0.195",
+    "ai": "^7.0.2",
     "ansi-to-vue3": "^0.1.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
