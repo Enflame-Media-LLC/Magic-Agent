@@ -43,7 +43,7 @@
   "private": true,
   "devDependencies": {
     "@axe-core/playwright": "^4.11.3",
-    "@cloudflare/workers-types": "^4.20260603.1",
+    "@cloudflare/workers-types": "^5.20260707.1",
     "@happy/lint-rules": "workspace:*",
     "@playwright/test": "^1.60.0",
     "@tailwindcss/postcss": "^4.3.0",
