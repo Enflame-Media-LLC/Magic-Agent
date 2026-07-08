@@ -27,10 +27,10 @@
     "zod": "^3.0.0 || ^4.0.0"
   },
   "devDependencies": {
-    "quicktype": "^23.2.6",
-    "quicktype-core": "^23.2.6",
-    "tsdown": "^0.22.1",
-    "tsx": "^4.22.4",
+    "quicktype": "^23.3.23",
+    "quicktype-core": "^23.3.23",
+    "tsdown": "^0.22.4",
+    "tsx": "^4.23.0",
     "typescript": "^6.0.3",
     "zod": "^4.4.3"
   },
