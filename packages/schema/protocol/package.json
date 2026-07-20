@@ -28,7 +28,7 @@
   },
   "devDependencies": {
     "quicktype": "^23.2.6",
-    "quicktype-core": "^23.2.6",
+    "quicktype-core": "^26.0.0",
     "tsdown": "^0.22.1",
     "tsx": "^4.22.4",
     "typescript": "^6.0.3",
