@@ -107,7 +107,7 @@ const messageForm = useForm({
   },
 });
 
-const sendStatus = ref<"ready" | "submitted" | "streaming" | "error">("ready");
+const sendStatus = ref<"ready" | "submitted" | "error">("ready");
 
 const emptyStateSuggestions = [
   "Explain the project structure",
