@@ -35,7 +35,10 @@ jobs:
     name: Analyze Bundle Size
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # Run on PRs and manual dispatch (push to main handled by update-baseline job)
+    # Run on PRs and manual dispatch (push to main handled by update-baseline job).
+    # While the pull_request trigger above is disabled, only the
+    # workflow_dispatch term can fire; the pull_request term is kept so this
+    # guard stays correct once the header `on:` triggers are restored.
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
 
     steps:
