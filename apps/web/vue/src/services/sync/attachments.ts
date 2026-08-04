@@ -141,6 +141,59 @@ async function uploadEncryptedBlob(
 }
 
 /**
+ * Read, validate, encrypt, and upload a single attachment.
+ */
+async function uploadSingleAttachment(
+  session: Session,
+  file: OutgoingFileAttachment,
+  token: string,
+): Promise<
+  { ok: true; attachment: UserMessageAttachment } | { ok: false; error: string }
+> {
+  const contents = await readFileAsBase64(file);
+  const filename = normalizeFilename(file.filename, contents?.mimeType ?? DEFAULT_MIME);
+  if (!contents) {
+    return { ok: false, error: `Failed to read attachment "${filename}"` };
+  }
+
+  const size = base64ByteLength(contents.base64);
+  if (size > ATTACHMENT_LIMITS.MAX_SIZE_BYTES) {
+    const maxMb = Math.round(ATTACHMENT_LIMITS.MAX_SIZE_BYTES / (1024 * 1024));
+    return {
+      ok: false,
+      error: `Attachment "${filename}" exceeds the ${String(maxMb)}MB limit`,
+    };
+  }
+
+  const payload: AttachmentBlobPayload = {
+    v: 1,
+    filename,
+    mimeType: contents.mimeType,
+    data: contents.base64,
+  };
+
+  const encrypted = await encryptSessionMessage(session, payload);
+  if (!encrypted) {
+    return { ok: false, error: `Failed to encrypt attachment "${filename}"` };
+  }
+
+  const uploaded = await uploadEncryptedBlob(encrypted, filename, token);
+  if (!uploaded.ok) {
+    return uploaded;
+  }
+
+  return {
+    ok: true,
+    attachment: {
+      blobId: uploaded.blobId,
+      filename,
+      mimeType: contents.mimeType,
+      size,
+    },
+  };
+}
+
+/**
  * Encrypt and upload attachments for an outgoing session message.
  *
  * Returns blob references to embed in the encrypted message payload. Fails
@@ -170,44 +223,11 @@ export async function uploadSessionAttachments(
   const attachments: UserMessageAttachment[] = [];
 
   for (const file of files) {
-    const contents = await readFileAsBase64(file);
-    const filename = normalizeFilename(file.filename, contents?.mimeType ?? DEFAULT_MIME);
-    if (!contents) {
-      return { ok: false, error: `Failed to read attachment "${filename}"` };
+    const result = await uploadSingleAttachment(session, file, credentials.token);
+    if (!result.ok) {
+      return result;
     }
-
-    const size = base64ByteLength(contents.base64);
-    if (size > ATTACHMENT_LIMITS.MAX_SIZE_BYTES) {
-      const maxMb = Math.round(ATTACHMENT_LIMITS.MAX_SIZE_BYTES / (1024 * 1024));
-      return {
-        ok: false,
-        error: `Attachment "${filename}" exceeds the ${String(maxMb)}MB limit`,
-      };
-    }
-
-    const payload: AttachmentBlobPayload = {
-      v: 1,
-      filename,
-      mimeType: contents.mimeType,
-      data: contents.base64,
-    };
-
-    const encrypted = await encryptSessionMessage(session, payload);
-    if (!encrypted) {
-      return { ok: false, error: `Failed to encrypt attachment "${filename}"` };
-    }
-
-    const uploaded = await uploadEncryptedBlob(encrypted, filename, credentials.token);
-    if (!uploaded.ok) {
-      return uploaded;
-    }
-
-    attachments.push({
-      blobId: uploaded.blobId,
-      filename,
-      mimeType: contents.mimeType,
-      size,
-    });
+    attachments.push(result.attachment);
   }
 
   return { ok: true, attachments };
