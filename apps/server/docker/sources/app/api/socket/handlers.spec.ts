@@ -702,6 +702,26 @@ describe('WebSocket Handlers Integration Tests', () => {
 
                 expect(db.sessionMessage.create).not.toHaveBeenCalled();
             });
+
+            it('should reject query-operator object injection in sid', async () => {
+                await socket.__trigger('message', {
+                    sid: { not: '' }, // NoSQL-style operator injection payload
+                    message: 'encrypted-message-content',
+                });
+
+                expect(db.session.findUnique).not.toHaveBeenCalled();
+                expect(db.sessionMessage.create).not.toHaveBeenCalled();
+            });
+
+            it('should reject query-operator object injection in message', async () => {
+                await socket.__trigger('message', {
+                    sid: 'sess-123',
+                    message: { not: '' }, // NoSQL-style operator injection payload
+                });
+
+                expect(db.session.findUnique).not.toHaveBeenCalled();
+                expect(db.sessionMessage.create).not.toHaveBeenCalled();
+            });
         });
 
         describe('session-end', () => {
@@ -1197,6 +1217,24 @@ describe('WebSocket Handlers Integration Tests', () => {
                     error: 'Invalid parameters: sessionId and machineId are required',
                 });
                 expect(db.session.findFirst).not.toHaveBeenCalled();
+                expect(db.machine.findFirst).not.toHaveBeenCalled();
+                expect(db.accessKey.findUnique).not.toHaveBeenCalled();
+            });
+
+            it('should reject query-operator object injection in machineId', async () => {
+                const callback = vi.fn();
+                await socket.__trigger('access-key-get', {
+                    sessionId: 'sess-123',
+                    machineId: { not: '' }, // NoSQL-style operator injection payload
+                }, callback);
+
+                expect(callback).toHaveBeenCalledWith({
+                    ok: false,
+                    error: 'Invalid parameters: sessionId and machineId are required',
+                });
+                expect(db.session.findFirst).not.toHaveBeenCalled();
+                expect(db.machine.findFirst).not.toHaveBeenCalled();
+                expect(db.accessKey.findUnique).not.toHaveBeenCalled();
             });
 
             it('should return error for invalid parameters', async () => {
