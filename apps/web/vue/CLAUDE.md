@@ -85,10 +85,12 @@ import { ApiUpdateSchema, type ApiUpdate } from "@magic-agent/protocol";
 ### Code Style
 
 - 2-space indentation
-- Single quotes for strings
+- Double quotes for strings (enforced by `vp check` / oxlint)
 - Semicolons required
 - Vue Composition API (not Options API)
 - `<script setup>` syntax preferred
+
+> **Source of truth**: `vp check` / oxlint config is authoritative. This document is descriptive — if formatter behavior diverges from the guidance here, the formatter wins and this doc should be updated to match.
 
 ## Vite+ Migration Workarounds
 
