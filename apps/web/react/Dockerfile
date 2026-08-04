@@ -43,6 +43,8 @@ RUN rm /etc/nginx/conf.d/default.conf
 # Create custom nginx configuration directly in the Dockerfile
 RUN echo 'server { \
     listen 80; \
+    add_header X-Frame-Options "DENY" always; \
+    add_header Content-Security-Policy "frame-ancestors '"'"'none'"'"'" always; \
     \
     location /_expo/ { \
         root   /usr/share/nginx/html; \
