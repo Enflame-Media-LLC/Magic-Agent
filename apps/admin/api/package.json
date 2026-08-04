@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/index.ts",
   "scripts": {
-    "preinstall": "node -e \"if(!process.env.INIT_CWD?.endsWith('/happy')){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
+    "preinstall": "node -e \"if(!process.env.INIT_CWD?.endsWith('/magicagent')){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
     "help": "echo '\nHappy Admin API - Available Scripts\n====================================\n\nDevelopment:\n  dev                Start Wrangler dev server\n\nDeployment:\n  deploy:dev         Deploy to development environment\n  deploy:prod        Deploy to production environment\n\nCode Quality:\n  typecheck          Type-check TypeScript\n  lint               Run oxlint\n  lint:fix           Run oxlint with auto-fix\n  test               Run tests with Vitest\n  test:security      Run security-specific tests\n\nDatabase:\n  db:generate        Generate Better-Auth migrations\n  db:migrate         Apply migrations to remote dev D1\n  db:migrate:prod    Apply migrations to remote prod D1\n'",
     "dev": "wrangler dev",
     "deploy:dev": "wrangler deploy --env dev",
@@ -34,19 +34,19 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260415.1",
+    "@cloudflare/workers-types": "^4.20260603.1",
     "@happy/lint-rules": "workspace:*",
-    "@types/node": "^25.6.0",
-    "oxlint": "^1.60.0",
-    "typescript": "^6.0.2",
-    "wrangler": "^4.82.2"
+    "@types/node": "^25.9.1",
+    "oxlint": "^1.68.0",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.97.0"
   },
   "dependencies": {
     "@hono/swagger-ui": "^0.6.1",
-    "@hono/zod-openapi": "^1.3.0",
-    "better-auth": "^1.6.3",
-    "drizzle-orm": "^1.0.0-beta.12-18d8bfb",
-    "hono": "^4.12.14",
-    "zod": "^4.3.6"
+    "@hono/zod-openapi": "^1.4.0",
+    "better-auth": "^1.6.14",
+    "drizzle-orm": "^1.0.0-rc.2",
+    "hono": "^4.12.23",
+    "zod": "^4.4.3"
   }
 }
