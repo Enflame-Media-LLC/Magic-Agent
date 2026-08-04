@@ -41,6 +41,7 @@ yarn-error.log*
 
 # AI/Tool config directories (local to developer machine)
 .serena/
+.gitnexus/
 .zencoder/
 .zenflow/
 .mcp.json
