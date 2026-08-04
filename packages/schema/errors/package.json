@@ -24,7 +24,7 @@
   ],
   "sideEffects": false,
   "devDependencies": {
-    "tsdown": "^0.22.0",
+    "tsdown": "^0.22.1",
     "typescript": "^6.0.3"
   },
   "scripts": {
