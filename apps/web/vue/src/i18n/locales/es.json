@@ -300,6 +300,25 @@
     "archivedBannerText": "Esta sesión está archivada",
     "machineOffline": "Máquina desconectada",
     "noMessagesYet": "No hay mensajes aún",
+    "noMessagesYetTitle": "No Messages Yet",
+    "emptyMessagesDescription": "Messages will appear here when the session starts.",
+    "loadingConversation": "Loading conversation…",
+    "notFoundTitle": "Session Not Found",
+    "notFoundDescription": "This session may have been deleted or is no longer available.",
+    "goBack": "Go Back",
+    "cliSettings": "CLI Settings",
+    "shareSession": "Share session",
+    "viewOnlyMode": "View-only mode. Use the CLI to send messages.",
+    "encryptedContent": "[Encrypted content]",
+    "notActive": "Session is not active",
+    "failedToSendMessage": "Failed to send message",
+    "failedToLoadHistory": "Failed to load session history",
+    "suggestions": {
+      "explainProjectStructure": "Explain the project structure",
+      "runTests": "Run the tests",
+      "showRecentChanges": "Show recent changes",
+      "summarizeConversation": "Summarize the conversation"
+    },
     "createdTime": "Creado {time}",
     "loadingOlderMessages": "Cargando...",
     "noMoreMessages": "Inicio de la conversación",
@@ -988,6 +1007,11 @@
     "output": "Salida"
   },
   "tools": {
+    "running": "Running…",
+    "toolResult": "Tool result",
+    "details": "Tool details",
+    "detailsUnavailable": "Tool Details Unavailable",
+    "detailsUnavailableDescription": "We couldn't find a tool call for this message.",
     "fullView": {
       "description": "Descripción",
       "inputParams": "Parámetros de entrada",
@@ -1073,6 +1097,13 @@
     "errorShort": "Error",
     "default": "Asistente de voz",
     "tapToEnd": "Toca para terminar"
+  },
+  "voice": {
+    "connecting": "Connecting voice...",
+    "startSession": "Start voice session",
+    "endSession": "End voice session",
+    "muteMicrophone": "Mute microphone",
+    "unmuteMicrophone": "Unmute microphone"
   },
   "welcome": {
     "title": "Cliente móvil de Codex y Claude Code",

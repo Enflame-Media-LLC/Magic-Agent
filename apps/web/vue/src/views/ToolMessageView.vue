@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,6 +19,7 @@ import ResponsiveContainer from "@/components/app/ResponsiveContainer.vue";
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 const sessionsStore = useSessionsStore();
 const messagesStore = useMessagesStore();
 const authStore = useAuthStore();
@@ -43,7 +45,7 @@ async function loadArchivedHistory(): Promise<void> {
   }
 
   if (!authStore.token) {
-    toast.error("Not authenticated");
+    toast.error(t("errors.notAuthenticated"));
     return;
   }
 
@@ -61,7 +63,7 @@ async function loadArchivedHistory(): Promise<void> {
     messagesStore.setMessagesForSession(sessionId.value, mappedMessages);
   } catch (error) {
     console.error("[tool-message] Failed to load archived history", error);
-    toast.error("Failed to load session history");
+    toast.error(t("session.failedToLoadHistory"));
   }
 }
 
@@ -115,7 +117,7 @@ const headerTool = computed(() => mergedToolCall.value ?? toolMessage.value?.too
 
 const headerTitle = computed(() => {
   const tool = headerTool.value;
-  if (!tool) return "Tool details";
+  if (!tool) return t("tools.details");
   const config = getToolConfig(tool);
   if (config?.title) {
     return typeof config.title === "function" ? config.title(tool) : config.title;
@@ -171,7 +173,7 @@ watch([sessionId, messageId], async () => {
               {{ headerSubtitle }}
             </div>
           </div>
-          <div v-else class="text-sm text-muted-foreground">Tool details</div>
+          <div v-else class="text-sm text-muted-foreground">{{ t("tools.details") }}</div>
         </div>
       </ResponsiveContainer>
     </header>
@@ -194,7 +196,7 @@ watch([sessionId, messageId], async () => {
         <ResponsiveContainer size="default" padding="default">
           <ToolFullView
             :tool="{
-              name: 'Tool result',
+              name: t('tools.toolResult'),
               state: toolResultMessage.isError ? 'error' : 'completed',
               input: {},
               createdAt: toolResultMessage.createdAt,
@@ -209,8 +211,8 @@ watch([sessionId, messageId], async () => {
 
       <template v-else>
         <div class="flex flex-col items-center justify-center h-full p-8 text-center">
-          <h2 class="text-lg font-semibold mb-2">Tool Details Unavailable</h2>
-          <p class="text-muted-foreground">We couldn't find a tool call for this message.</p>
+          <h2 class="text-lg font-semibold mb-2">{{ t("tools.detailsUnavailable") }}</h2>
+          <p class="text-muted-foreground">{{ t("tools.detailsUnavailableDescription") }}</p>
         </div>
       </template>
     </ScrollArea>

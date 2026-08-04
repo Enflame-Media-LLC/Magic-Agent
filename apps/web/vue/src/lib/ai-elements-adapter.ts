@@ -54,7 +54,31 @@ export type SourcePart = {
   };
 };
 
-export type AIElementsPart = TextPart | ToolInvocationPart | ReasoningPart | SourcePart;
+/**
+ * Discriminated descriptor for an AgentEvent.
+ *
+ * The adapter emits this structured form instead of a pre-formatted English
+ * string so that consumers (Vue components) can route the description through
+ * `vue-i18n`'s `t()` helper. Each variant maps 1:1 to a translation key in the
+ * `message.*` namespace (see HAP-1104).
+ */
+export type AgentEventDescriptor =
+  | { type: "switch"; mode: string }
+  | { type: "message"; message: string }
+  | { type: "limit-reached"; endsAt?: number }
+  | { type: "unknown"; name: string };
+
+export type AgentEventPart = {
+  type: "agent-event";
+  event: AgentEventDescriptor;
+};
+
+export type AIElementsPart =
+  | TextPart
+  | ToolInvocationPart
+  | ReasoningPart
+  | SourcePart
+  | AgentEventPart;
 
 export type AIElementsMessage = {
   id: string;
@@ -83,18 +107,27 @@ export type AIToolApproval =
 // ---------------------------------------------------------------------------
 
 /**
- * Format an AgentEvent into a human-readable string.
+ * Describe an AgentEvent as a discriminated descriptor.
+ *
+ * This pure helper replaces the previous `formatAgentEvent` (which returned a
+ * pre-formatted English string). Consumers in the Vue layer call this and then
+ * resolve the descriptor through `vue-i18n` so the rendered text honors the
+ * user's locale (HAP-1104).
  */
-function formatAgentEvent(event: AgentEvent): string {
+export function describeAgentEvent(event: AgentEvent): AgentEventDescriptor {
   switch (event.type) {
     case "switch":
-      return `Switched to ${event.mode} mode`;
+      return { type: "switch", mode: String(event.mode) };
     case "message":
-      return String(event.message);
-    case "limit-reached":
-      return "Rate limit reached";
+      return { type: "message", message: String(event.message) };
+    case "limit-reached": {
+      const endsAt = Number(event.endsAt);
+      return Number.isFinite(endsAt)
+        ? { type: "limit-reached", endsAt }
+        : { type: "limit-reached" };
+    }
     default:
-      return `Event: ${event.type}`;
+      return { type: "unknown", name: String(event.type) };
   }
 }
 
@@ -180,7 +213,7 @@ function adaptSingleMessage(msg: NormalizedMessage): AIElementsMessage {
       return {
         id: msg.id,
         role: "assistant",
-        parts: [{ type: "text", text: formatAgentEvent(msg.event) }],
+        parts: [{ type: "agent-event", event: describeAgentEvent(msg.event) }],
         createdAt: msg.createdAt,
       };
 

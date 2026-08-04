@@ -29,6 +29,7 @@
 
 import { computed, ref } from "vue";
 import { useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { ExternalLinkIcon } from "lucide-vue-next";
 import { Message, MessageContent, MessageResponse } from "@/components/ai-elements/message";
 import {
@@ -42,7 +43,7 @@ import { Loader } from "@/components/ai-elements/loader";
 import MarkdownView, { type Option } from "./markdown/MarkdownView.vue";
 import { getToolViewComponent } from "./tools/views/_all";
 import { getToolConfig } from "./tools/knownTools";
-import { adaptToolState } from "@/lib/ai-elements-adapter";
+import { adaptToolState, describeAgentEvent } from "@/lib/ai-elements-adapter";
 import type { NormalizedMessage } from "@/services/messages/types";
 import { cn } from "@/lib/utils";
 
@@ -67,6 +68,7 @@ interface Props {
 
 const props = defineProps<Props>();
 const router = useRouter();
+const { t } = useI18n();
 const isExpanded = ref(false);
 
 const LINE_THRESHOLD = 50;
@@ -202,23 +204,28 @@ const standaloneToolResult = computed(() => {
 
 // ── Agent-event formatted text ──────────────────────────────────────────────
 
+// Resolve a structured AgentEvent descriptor into localized text via t().
+// The adapter is kept pure (no English literals) so all locale handling lives
+// in the Vue layer. See HAP-1104.
 const agentEventText = computed(() => {
   if (props.message.kind !== "agent-event") return "";
-  const event = props.message.event;
-  switch (event.type) {
+  const descriptor = describeAgentEvent(props.message.event);
+  switch (descriptor.type) {
     case "switch":
-      return `Switched to ${event.mode}`;
+      return t("message.switchedToMode", { mode: descriptor.mode });
     case "message":
-      return String(event.message);
+      return descriptor.message;
     case "limit-reached": {
-      const endsAt = Number(event.endsAt);
-      if (Number.isFinite(endsAt)) {
-        return `Usage limit until ${new Date(endsAt * 1000).toLocaleTimeString()}`;
-      }
-      return "Usage limit reached";
+      const endsAt = descriptor.endsAt;
+      const time =
+        typeof endsAt === "number" && Number.isFinite(endsAt)
+          ? new Date(endsAt * 1000).toLocaleTimeString()
+          : t("message.unknownTime");
+      return t("message.usageLimitUntil", { time });
     }
+    case "unknown":
     default:
-      return "System event";
+      return t("message.unknownEvent");
   }
 });
 
@@ -254,7 +261,11 @@ const systemBubbleClass = cn(
         class="mt-1 self-start text-xs text-muted-foreground underline underline-offset-4"
         @click="toggleExpanded"
       >
-        {{ isExpanded ? "Show less" : `Show ${truncatedMarkdown.hiddenLines} more lines` }}
+        {{
+          isExpanded
+            ? t("message.showLess")
+            : t("message.showMore", { lines: truncatedMarkdown.hiddenLines })
+        }}
       </button>
 
       <span
@@ -299,7 +310,7 @@ const systemBubbleClass = cn(
         class="flex items-center gap-2 p-4 text-xs text-muted-foreground"
       >
         <Loader :size="14" />
-        <span>Running…</span>
+        <span>{{ t("tools.running") }}</span>
       </div>
 
       <!-- Specific tool view (BashView, EditView, TodoView, etc.) -->
@@ -330,7 +341,7 @@ const systemBubbleClass = cn(
         type="dynamic-tool"
         :state="standaloneToolResult.isError ? 'output-error' : 'output-available'"
         tool-name="tool"
-        title="Tool result"
+        :title="t('tools.toolResult')"
       />
       <ToolContent>
         <ToolOutput

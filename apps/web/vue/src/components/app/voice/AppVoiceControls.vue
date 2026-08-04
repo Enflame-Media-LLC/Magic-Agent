@@ -21,6 +21,7 @@
  */
 
 import { computed, defineAsyncComponent, type HTMLAttributes } from "vue";
+import { useI18n } from "vue-i18n";
 import { MicIcon, MicOffIcon, SquareIcon } from "lucide-vue-next";
 import { useVoice } from "@/composables/useVoice";
 import { cn } from "@/lib/utils";
@@ -55,16 +56,19 @@ const props = withDefaults(defineProps<Props>(), {
 
 const { isActive, isConnecting, isMuted, statusMessage, startSession, endSession, toggleMute } =
   useVoice();
+const { t } = useI18n();
 
 const isBusy = computed(() => isConnecting.value);
 
 const buttonLabel = computed(() => {
-  if (isBusy.value) return "Connecting voice...";
-  if (isActive.value) return "End voice session";
-  return "Start voice session";
+  if (isBusy.value) return t("voice.connecting");
+  if (isActive.value) return t("voice.endSession");
+  return t("voice.startSession");
 });
 
-const muteLabel = computed(() => (isMuted.value ? "Unmute microphone" : "Mute microphone"));
+const muteLabel = computed(() =>
+  isMuted.value ? t("voice.unmuteMicrophone") : t("voice.muteMicrophone"),
+);
 
 async function handleToggleVoice() {
   if (isBusy.value) return;

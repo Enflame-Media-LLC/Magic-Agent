@@ -301,6 +301,25 @@
     "archivedBannerText": "This session is archived",
     "machineOffline": "Machine offline",
     "noMessagesYet": "No messages yet",
+    "noMessagesYetTitle": "No Messages Yet",
+    "emptyMessagesDescription": "Messages will appear here when the session starts.",
+    "loadingConversation": "Loading conversation…",
+    "notFoundTitle": "Session Not Found",
+    "notFoundDescription": "This session may have been deleted or is no longer available.",
+    "goBack": "Go Back",
+    "cliSettings": "CLI Settings",
+    "shareSession": "Share session",
+    "viewOnlyMode": "View-only mode. Use the CLI to send messages.",
+    "encryptedContent": "[Encrypted content]",
+    "notActive": "Session is not active",
+    "failedToSendMessage": "Failed to send message",
+    "failedToLoadHistory": "Failed to load session history",
+    "suggestions": {
+      "explainProjectStructure": "Explain the project structure",
+      "runTests": "Run the tests",
+      "showRecentChanges": "Show recent changes",
+      "summarizeConversation": "Summarize the conversation"
+    },
     "createdTime": "Created {time}",
     "loadingOlderMessages": "Loading...",
     "noMoreMessages": "Beginning of conversation",
@@ -986,6 +1005,11 @@
     "output": "Output"
   },
   "tools": {
+    "running": "Running…",
+    "toolResult": "Tool result",
+    "details": "Tool details",
+    "detailsUnavailable": "Tool Details Unavailable",
+    "detailsUnavailableDescription": "We couldn't find a tool call for this message.",
     "fullView": {
       "description": "Description",
       "inputParams": "Input Parameters",
@@ -1071,6 +1095,13 @@
     "errorShort": "Error",
     "default": "Voice Assistant",
     "tapToEnd": "Tap to end"
+  },
+  "voice": {
+    "connecting": "Connecting voice...",
+    "startSession": "Start voice session",
+    "endSession": "End voice session",
+    "muteMicrophone": "Mute microphone",
+    "unmuteMicrophone": "Unmute microphone"
   },
   "sharing": {
     "modal": {

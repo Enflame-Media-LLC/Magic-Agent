@@ -300,6 +300,25 @@
     "archivedBannerText": "Эта сессия архивирована",
     "machineOffline": "Машина не в сети",
     "noMessagesYet": "Сообщений пока нет",
+    "noMessagesYetTitle": "No Messages Yet",
+    "emptyMessagesDescription": "Messages will appear here when the session starts.",
+    "loadingConversation": "Loading conversation…",
+    "notFoundTitle": "Session Not Found",
+    "notFoundDescription": "This session may have been deleted or is no longer available.",
+    "goBack": "Go Back",
+    "cliSettings": "CLI Settings",
+    "shareSession": "Share session",
+    "viewOnlyMode": "View-only mode. Use the CLI to send messages.",
+    "encryptedContent": "[Encrypted content]",
+    "notActive": "Session is not active",
+    "failedToSendMessage": "Failed to send message",
+    "failedToLoadHistory": "Failed to load session history",
+    "suggestions": {
+      "explainProjectStructure": "Explain the project structure",
+      "runTests": "Run the tests",
+      "showRecentChanges": "Show recent changes",
+      "summarizeConversation": "Summarize the conversation"
+    },
     "createdTime": "Создано {time}",
     "loadingOlderMessages": "Загрузка...",
     "noMoreMessages": "Начало разговора",
@@ -989,6 +1008,11 @@
     "output": "Результат"
   },
   "tools": {
+    "running": "Running…",
+    "toolResult": "Tool result",
+    "details": "Tool details",
+    "detailsUnavailable": "Tool Details Unavailable",
+    "detailsUnavailableDescription": "We couldn't find a tool call for this message.",
     "fullView": {
       "description": "Описание",
       "inputParams": "Входные параметры",
@@ -1074,6 +1098,13 @@
     "errorShort": "Ошибка",
     "default": "Голосовой ассистент",
     "tapToEnd": "Нажмите для завершения"
+  },
+  "voice": {
+    "connecting": "Connecting voice...",
+    "startSession": "Start voice session",
+    "endSession": "End voice session",
+    "muteMicrophone": "Mute microphone",
+    "unmuteMicrophone": "Unmute microphone"
   },
   "welcome": {
     "title": "Мобильный клиент Codex и Claude Code",

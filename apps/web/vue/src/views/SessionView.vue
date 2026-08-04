@@ -8,6 +8,7 @@
 
 import { computed, ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { useForm } from "@tanstack/vue-form";
 import { z } from "zod";
 import { useSessionsStore } from "@/stores/sessions";
@@ -60,6 +61,7 @@ interface SessionMetadata {
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 const sessionsStore = useSessionsStore();
 const messagesStore = useMessagesStore();
 const authStore = useAuthStore();
@@ -109,12 +111,12 @@ const messageForm = useForm({
 
 const sendStatus = ref<"ready" | "submitted" | "streaming" | "error">("ready");
 
-const emptyStateSuggestions = [
-  "Explain the project structure",
-  "Run the tests",
-  "Show recent changes",
-  "Summarize the conversation",
-];
+const emptyStateSuggestions = computed(() => [
+  t("session.suggestions.explainProjectStructure"),
+  t("session.suggestions.runTests"),
+  t("session.suggestions.showRecentChanges"),
+  t("session.suggestions.summarizeConversation"),
+]);
 
 async function refreshMetadata(): Promise<void> {
   if (!session.value) {
@@ -282,7 +284,7 @@ const normalizedMessages = computed<NormalizedMessage[]>(() => {
         sourceMessageId: message.id,
         localId: message.localId,
         createdAt: message.createdAt,
-        text: "[Encrypted content]",
+        text: t("session.encryptedContent"),
       });
       continue;
     }
@@ -343,7 +345,7 @@ async function loadArchivedHistory(): Promise<void> {
   }
 
   if (!authStore.token) {
-    toast.error("Not authenticated");
+    toast.error(t("errors.notAuthenticated"));
     return;
   }
 
@@ -361,7 +363,7 @@ async function loadArchivedHistory(): Promise<void> {
     messagesStore.setMessagesForSession(sessionId.value, mappedMessages);
   } catch (error) {
     console.error("[session] Failed to load archived history", error);
-    toast.error("Failed to load session history");
+    toast.error(t("session.failedToLoadHistory"));
   }
 }
 
@@ -412,7 +414,7 @@ async function handlePromptSubmit(payload: PromptInputMessage): Promise<void> {
 
 async function doSendMessage(text: string): Promise<void> {
   if (!session.value || !session.value.active) {
-    toast.error("Session is not active");
+    toast.error(t("session.notActive"));
     return;
   }
 
@@ -432,7 +434,7 @@ async function doSendMessage(text: string): Promise<void> {
 
   if (!result.ok) {
     sendStatus.value = "error";
-    const errorMessage = result.error ?? "Failed to send message";
+    const errorMessage = result.error ?? t("session.failedToSendMessage");
     toast.error(errorMessage);
     // Throw so PromptInput's submit handler treats this as an error and
     // preserves the user's input instead of clearing it on resolve.
@@ -502,7 +504,7 @@ function handlePromptKeydown(event: KeyboardEvent): void {
         <!-- Voice controls (AI Elements SpeechInput + AudioPlayer) -->
         <AppVoiceControls v-if="session?.active" :session-id="sessionId" />
 
-        <Button variant="ghost" size="icon" @click="openShareModal" title="Share session">
+        <Button variant="ghost" size="icon" @click="openShareModal" :title="t('session.shareSession')">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             class="h-5 w-5"
@@ -542,7 +544,7 @@ function handlePromptKeydown(event: KeyboardEvent): void {
     <div class="relative flex flex-1 min-h-0 flex-col">
       <!-- Loading state — Shimmer replaces Skeleton -->
       <div v-if="isLoading" class="flex-1 space-y-4 p-4">
-        <Shimmer class="text-sm">Loading conversation…</Shimmer>
+        <Shimmer class="text-sm">{{ t("session.loadingConversation") }}</Shimmer>
         <div class="space-y-3">
           <Shimmer as="div" class="h-4 w-3/4 rounded bg-muted/50" />
           <Shimmer as="div" class="h-4 w-1/2 rounded bg-muted/50" />
@@ -569,11 +571,11 @@ function handlePromptKeydown(event: KeyboardEvent): void {
             d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
           />
         </svg>
-        <h2 class="text-lg font-semibold mb-2">Session Not Found</h2>
+        <h2 class="text-lg font-semibold mb-2">{{ t("session.notFoundTitle") }}</h2>
         <p class="text-muted-foreground mb-4">
-          This session may have been deleted or is no longer available.
+          {{ t("session.notFoundDescription") }}
         </p>
-        <Button @click="goBack">Go Back</Button>
+        <Button @click="goBack">{{ t("session.goBack") }}</Button>
       </div>
 
       <!-- Messages — AI Elements Conversation with auto-scroll + scroll-to-bottom -->
@@ -606,8 +608,8 @@ function handlePromptKeydown(event: KeyboardEvent): void {
             d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
           />
         </svg>
-        <h2 class="text-lg font-semibold">No Messages Yet</h2>
-        <p class="text-muted-foreground">Messages will appear here when the session starts.</p>
+        <h2 class="text-lg font-semibold">{{ t("session.noMessagesYetTitle") }}</h2>
+        <p class="text-muted-foreground">{{ t("session.emptyMessagesDescription") }}</p>
         <Suggestions v-if="session?.active" class="mt-2 justify-center">
           <Suggestion
             v-for="suggestion in emptyStateSuggestions"
@@ -657,13 +659,13 @@ function handlePromptKeydown(event: KeyboardEvent): void {
                 class="h-6 rounded-full border-border/60 bg-background/40 px-3 text-[11px]"
                 @click="navigateToSettings"
               >
-                CLI Settings
+                {{ t("session.cliSettings") }}
               </Button>
             </div>
           </PromptInputHeader>
 
           <PromptInputTextarea
-            placeholder="Type a message..."
+            :placeholder="t('session.inputPlaceholder')"
             :disabled="isSending"
             @keydown="handlePromptKeydown"
           />
@@ -707,7 +709,7 @@ function handlePromptKeydown(event: KeyboardEvent): void {
 
     <div v-else class="border-t p-4 bg-muted/30">
       <p class="text-sm text-center text-muted-foreground">
-        View-only mode. Use the CLI to send messages.
+        {{ t("session.viewOnlyMode") }}
       </p>
     </div>
 

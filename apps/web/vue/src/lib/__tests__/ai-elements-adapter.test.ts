@@ -12,6 +12,8 @@ import {
   adaptMessages,
   adaptToolState,
   adaptToolApproval,
+  describeAgentEvent,
+  type AgentEventPart,
   type AIElementsMessage,
   type TextPart,
   type ToolInvocationPart,
@@ -253,35 +255,90 @@ describe("adaptMessages", () => {
   });
 
   describe("agent-event messages", () => {
-    it("maps switch event to formatted text", () => {
+    // The adapter emits a discriminated descriptor (no English literals) so
+    // consumers can route the rendering through vue-i18n's `t()` helper.
+    // See HAP-1104 — i18n audit for AI Elements consumers.
+    it("maps switch event to AgentEventPart with mode", () => {
       const result = adaptMessages([makeAgentEvent({ event: { type: "switch", mode: "plan" } })]);
       const msg = result[0] as AIElementsMessage;
       expect(msg.role).toBe("assistant");
-      const part = msg.parts[0] as TextPart;
-      expect(part.type).toBe("text");
-      expect(part.text).toBe("Switched to plan mode");
+      const part = msg.parts[0] as AgentEventPart;
+      expect(part.type).toBe("agent-event");
+      expect(part.event).toEqual({ type: "switch", mode: "plan" });
     });
 
-    it("maps message event to its message text", () => {
+    it("maps message event to AgentEventPart with message text", () => {
       const result = adaptMessages([
         makeAgentEvent({ event: { type: "message", message: "Thinking..." } }),
       ]);
-      const part = result[0]!.parts[0] as TextPart;
-      expect(part.text).toBe("Thinking...");
+      const part = result[0]!.parts[0] as AgentEventPart;
+      expect(part.event).toEqual({ type: "message", message: "Thinking..." });
     });
 
-    it("maps limit-reached event", () => {
+    it("maps limit-reached event with endsAt", () => {
       const result = adaptMessages([
         makeAgentEvent({ event: { type: "limit-reached", endsAt: 99999 } }),
       ]);
-      const part = result[0]!.parts[0] as TextPart;
-      expect(part.text).toBe("Rate limit reached");
+      const part = result[0]!.parts[0] as AgentEventPart;
+      expect(part.event).toEqual({ type: "limit-reached", endsAt: 99999 });
     });
 
-    it("maps unknown event type to fallback format", () => {
+    it("maps limit-reached event without endsAt", () => {
+      // Runtime payloads occasionally arrive without endsAt; the discriminated
+      // type requires it, so cast through `unknown` to exercise the fallback.
+      const result = adaptMessages([
+        makeAgentEvent({
+          event: { type: "limit-reached" } as unknown as AgentEventMessage["event"],
+        }),
+      ]);
+      const part = result[0]!.parts[0] as AgentEventPart;
+      expect(part.event).toEqual({ type: "limit-reached" });
+    });
+
+    it("maps unknown event type to AgentEventPart with name", () => {
       const result = adaptMessages([makeAgentEvent({ event: { type: "custom-event" } })]);
-      const part = result[0]!.parts[0] as TextPart;
-      expect(part.text).toBe("Event: custom-event");
+      const part = result[0]!.parts[0] as AgentEventPart;
+      expect(part.event).toEqual({ type: "unknown", name: "custom-event" });
+    });
+  });
+
+  describe("describeAgentEvent helper", () => {
+    it("describes switch events", () => {
+      expect(describeAgentEvent({ type: "switch", mode: "plan" })).toEqual({
+        type: "switch",
+        mode: "plan",
+      });
+    });
+
+    it("describes message events", () => {
+      expect(describeAgentEvent({ type: "message", message: "Hello" })).toEqual({
+        type: "message",
+        message: "Hello",
+      });
+    });
+
+    it("describes limit-reached events with finite endsAt", () => {
+      expect(describeAgentEvent({ type: "limit-reached", endsAt: 1234 })).toEqual({
+        type: "limit-reached",
+        endsAt: 1234,
+      });
+    });
+
+    it("describes limit-reached events without endsAt", () => {
+      // Runtime payloads occasionally omit endsAt; cast to bypass the
+      // strict type which requires it.
+      expect(
+        describeAgentEvent({ type: "limit-reached" } as unknown as AgentEventMessage["event"]),
+      ).toEqual({
+        type: "limit-reached",
+      });
+    });
+
+    it("describes unknown events", () => {
+      expect(describeAgentEvent({ type: "custom-event" })).toEqual({
+        type: "unknown",
+        name: "custom-event",
+      });
     });
   });
 
