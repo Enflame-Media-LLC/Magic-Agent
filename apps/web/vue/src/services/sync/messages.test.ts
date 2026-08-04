@@ -15,6 +15,7 @@ import type { Session } from "@/stores/sessions";
 vi.mock("./WebSocketService", () => ({
   wsService: {
     send: vi.fn(),
+    isConnected: true,
   },
 }));
 
@@ -28,6 +29,7 @@ vi.mock("@/services/encryption/sessionDecryption", () => ({
 
 const session = { id: "session-1" } as Session;
 
+const mockedWsService = wsService as unknown as { isConnected: boolean };
 const mockSend = vi.mocked(wsService.send);
 const mockEncrypt = vi.mocked(encryptSessionMessage);
 const mockUpload = vi.mocked(uploadSessionAttachments);
@@ -35,6 +37,7 @@ const mockUpload = vi.mocked(uploadSessionAttachments);
 describe("sendSessionMessage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockedWsService.isConnected = true;
     mockSend.mockReturnValue(true);
     mockEncrypt.mockResolvedValue("encrypted-payload");
   });
@@ -138,5 +141,17 @@ describe("sendSessionMessage", () => {
     const result = await sendSessionMessage(session, "hello");
 
     expect(result).toEqual({ ok: false, error: "WebSocket not connected" });
+  });
+
+  it("does not upload attachments when the WebSocket is already disconnected", async () => {
+    mockedWsService.isConnected = false;
+
+    const result = await sendSessionMessage(session, "look", "default", [
+      { url: "data:image/png;base64,AAAA" },
+    ]);
+
+    expect(result).toEqual({ ok: false, error: "WebSocket not connected" });
+    expect(mockUpload).not.toHaveBeenCalled();
+    expect(mockSend).not.toHaveBeenCalled();
   });
 });

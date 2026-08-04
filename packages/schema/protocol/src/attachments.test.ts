@@ -59,6 +59,14 @@ describe('UserMessageAttachmentSchema', () => {
         expect(result.success).toBe(false);
     });
 
+    it('rejects a size over MAX_SIZE_BYTES', () => {
+        const result = UserMessageAttachmentSchema.safeParse({
+            ...validAttachment,
+            size: ATTACHMENT_LIMITS.MAX_SIZE_BYTES + 1,
+        });
+        expect(result.success).toBe(false);
+    });
+
     it('rejects a non-integer size', () => {
         const result = UserMessageAttachmentSchema.safeParse({
             ...validAttachment,
@@ -100,11 +108,30 @@ describe('AttachmentBlobPayloadSchema', () => {
         const result = AttachmentBlobPayloadSchema.safeParse(rest);
         expect(result.success).toBe(false);
     });
+
+    it('rejects data that is not valid base64', () => {
+        const result = AttachmentBlobPayloadSchema.safeParse({
+            ...validPayload,
+            data: 'not base64!!',
+        });
+        expect(result.success).toBe(false);
+    });
+
+    it('accepts an empty data field (zero-byte file)', () => {
+        const result = AttachmentBlobPayloadSchema.safeParse({
+            ...validPayload,
+            data: '',
+        });
+        expect(result.success).toBe(true);
+    });
 });
 
 describe('ATTACHMENT_LIMITS', () => {
     it('exposes sane client-side limits', () => {
         expect(ATTACHMENT_LIMITS.MAX_COUNT).toBeGreaterThan(0);
         expect(ATTACHMENT_LIMITS.MAX_SIZE_BYTES).toBeGreaterThan(0);
+        expect(ATTACHMENT_LIMITS.MAX_DATA_BASE64_LENGTH).toBe(
+            4 * Math.ceil(ATTACHMENT_LIMITS.MAX_SIZE_BYTES / 3),
+        );
     });
 });

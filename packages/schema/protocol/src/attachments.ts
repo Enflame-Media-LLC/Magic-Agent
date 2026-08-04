@@ -22,6 +22,8 @@
 import { z } from 'zod';
 import { STRING_LIMITS } from './constraints';
 
+const MAX_SIZE_BYTES = 25 * 1024 * 1024;
+
 /**
  * Client-side limits for user message attachments.
  *
@@ -32,8 +34,16 @@ export const ATTACHMENT_LIMITS = {
     /** Maximum number of attachments per user message */
     MAX_COUNT: 10,
     /** Maximum raw (pre-encryption) size per attachment in bytes (25 MB) */
-    MAX_SIZE_BYTES: 25 * 1024 * 1024,
+    MAX_SIZE_BYTES,
+    /**
+     * Maximum length of {@link AttachmentBlobPayload}'s base64 `data` field
+     * (4/3 expansion of MAX_SIZE_BYTES, rounded up to a padded quantum)
+     */
+    MAX_DATA_BASE64_LENGTH: 4 * Math.ceil(MAX_SIZE_BYTES / 3),
 } as const;
+
+/** Canonical (padded) standard base64 */
+const BASE64_REGEX = /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
 
 /**
  * Reference to an encrypted attachment blob, embedded in the E2E-encrypted
@@ -57,7 +67,7 @@ export const UserMessageAttachmentSchema = z.object({
     /** MIME type of the raw (decrypted) file */
     mimeType: z.string().min(1).max(STRING_LIMITS.NAME_MAX),
     /** Raw (pre-encryption) size in bytes */
-    size: z.number().int().nonnegative(),
+    size: z.number().int().nonnegative().max(ATTACHMENT_LIMITS.MAX_SIZE_BYTES),
 });
 
 export type UserMessageAttachment = z.infer<typeof UserMessageAttachmentSchema>;
@@ -76,7 +86,10 @@ export const AttachmentBlobPayloadSchema = z.object({
     /** MIME type of the raw file bytes */
     mimeType: z.string().min(1).max(STRING_LIMITS.NAME_MAX),
     /** Base64-encoded raw file bytes */
-    data: z.string(),
+    data: z
+        .string()
+        .max(ATTACHMENT_LIMITS.MAX_DATA_BASE64_LENGTH)
+        .regex(BASE64_REGEX, 'data must be base64'),
 });
 
 export type AttachmentBlobPayload = z.infer<typeof AttachmentBlobPayloadSchema>;

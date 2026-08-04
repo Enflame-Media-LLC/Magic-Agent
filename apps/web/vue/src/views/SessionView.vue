@@ -97,6 +97,7 @@ const isShareModalOpen = ref(false);
 // Files captured by PromptInput (paste/drop) awaiting the next send (MAG-1112).
 // Kept across a failed send so the user can retry without re-attaching.
 const pendingAttachments = ref<OutgoingFileAttachment[]>([]);
+const promptInputRef = ref<{ clearFiles: () => void } | null>(null);
 
 const messageSchema = z.object({
   message: z.string().min(1, "Message cannot be empty"),
@@ -426,7 +427,12 @@ async function handlePromptSubmit(payload: PromptInputMessage): Promise<void> {
 }
 
 function handlePromptError(error: { code: string; message: string }): void {
-  toast.error(error.message);
+  // submit_error re-wraps send failures that doSendMessage already toasted;
+  // only PromptInput's own validation errors (accept/max_files/max_file_size)
+  // need surfacing here.
+  if (error.code !== "submit_error") {
+    toast.error(error.message);
+  }
 }
 
 async function doSendMessage(text: string): Promise<void> {
@@ -470,7 +476,10 @@ async function doSendMessage(text: string): Promise<void> {
 }
 
 async function handleOptionPress(option: { title: string }): Promise<void> {
+  // Clear both the pending send state and PromptInput's attachment chips so a
+  // suggestion click can't leave stale attachments for the next typed message.
   pendingAttachments.value = [];
+  promptInputRef.value?.clearFiles();
   messageForm.setFieldValue("message", option.title);
   await messageForm.handleSubmit();
 }
@@ -653,6 +662,7 @@ function handlePromptKeydown(event: KeyboardEvent): void {
       class="border-t bg-muted/20"
     >
       <PromptInput
+        ref="promptInputRef"
         class="rounded-2xl"
         :multiple="true"
         :max-files="ATTACHMENT_LIMITS.MAX_COUNT"

@@ -31,6 +31,12 @@ export async function sendSessionMessage(
     return { ok: false, error: "Message is empty" };
   }
 
+  // Preflight the socket before uploading so a dead connection doesn't leave
+  // orphaned encrypted blobs on the server (uploads happen before the send).
+  if (hasFiles && !wsService.isConnected) {
+    return { ok: false, error: "WebSocket not connected" };
+  }
+
   // Upload attachments before sending so the message never references blobs
   // that failed to upload; any failure aborts the send (no silent drops).
   let attachments: UserMessageAttachment[] | undefined;
