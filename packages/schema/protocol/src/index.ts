@@ -55,5 +55,8 @@ export * from './usageLimits';
 // Session sharing schemas for sharing sessions with other users
 export * from './sharing';
 
+// User message attachment schemas (encrypted blob references)
+export * from './attachments';
+
 // Agent Client Protocol (ACP) schemas for universal agent communication
 export * from './acp';

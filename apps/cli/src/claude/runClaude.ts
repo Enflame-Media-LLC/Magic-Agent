@@ -20,6 +20,7 @@ import { configuration } from '@/configuration';
 import { notifyDaemonSessionStarted } from '@/daemon/controlClient';
 import { initialMachineMetadata } from '@/daemon/run';
 import { startHappyServer } from '@/claude/utils/startHappyServer';
+import { appendAttachmentNotes, resolveAttachments } from '@/claude/utils/attachments';
 import { registerKillSessionHandler } from './registerKillSessionHandler';
 import { projectPath } from '../projectPath';
 import { resolve } from 'node:path';
@@ -228,6 +229,9 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
     let currentAppendSystemPrompt: string | undefined = undefined; // Track current append system prompt
     let currentAllowedTools: string[] | undefined = undefined; // Track current allowed tools
     let currentDisallowedTools: string[] | undefined = undefined; // Track current disallowed tools
+    // Serializes attachment resolution so messages reach the queue in arrival
+    // order even when a message needs blob downloads (MAG-1112)
+    let messageDelivery: Promise<void> = Promise.resolve();
     session.onUserMessage((message) => {
 
         // Resolve permission mode from meta
@@ -351,8 +355,25 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
             allowedTools: messageAllowedTools,
             disallowedTools: messageDisallowedTools
         };
-        messageQueue.push(message.content.text, enhancedMode);
-        logger.debugLargeJson('User message pushed to queue:', message)
+        // Deliver through a serialized chain so attachment downloads (MAG-1112)
+        // cannot reorder messages; resolveAttachments never throws.
+        messageDelivery = messageDelivery.then(async () => {
+            let text = message.content.text;
+            if (message.attachments && message.attachments.length > 0) {
+                const notes = await resolveAttachments(message.attachments, {
+                    token: credentials.token,
+                    encryptionKey: response.encryptionKey,
+                    encryptionVariant: response.encryptionVariant
+                });
+                text = appendAttachmentNotes(text, notes);
+            }
+            messageQueue.push(text, enhancedMode);
+            logger.debugLargeJson('User message pushed to queue:', message)
+        }).catch((error) => {
+            // Keep the delivery chain alive; deliver the raw text as fallback
+            logger.debug('[start] Unexpected failure delivering user message, pushing raw text:', error);
+            messageQueue.push(message.content.text, enhancedMode);
+        });
     });
 
     // Define named signal handlers (defined before cleanup so they can be removed in cleanup)
