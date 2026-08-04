@@ -14,7 +14,7 @@ export function sessionUpdateHandler(userId: string, socket: Socket, connection:
             const { sid, metadata, expectedVersion } = data;
 
             // Validate input
-            if (!sid || typeof metadata !== 'string' || typeof expectedVersion !== 'number') {
+            if (!sid || typeof sid !== 'string' || typeof metadata !== 'string' || typeof expectedVersion !== 'number') {
                 if (callback) {
                     callback({ result: 'error' });
                 }
@@ -76,7 +76,7 @@ export function sessionUpdateHandler(userId: string, socket: Socket, connection:
             const { sid, agentState, expectedVersion } = data;
 
             // Validate input
-            if (!sid || (typeof agentState !== 'string' && agentState !== null) || typeof expectedVersion !== 'number') {
+            if (!sid || typeof sid !== 'string' || (typeof agentState !== 'string' && agentState !== null) || typeof expectedVersion !== 'number') {
                 if (callback) {
                     callback({ result: 'error' });
                 }
@@ -147,7 +147,7 @@ export function sessionUpdateHandler(userId: string, socket: Socket, connection:
             sessionAliveEventsCounter.inc();
 
             // Basic validation
-            if (!data || typeof data.time !== 'number' || !data.sid) {
+            if (!data || typeof data.time !== 'number' || !data.sid || typeof data.sid !== 'string') {
                 return;
             }
 
@@ -188,6 +188,11 @@ export function sessionUpdateHandler(userId: string, socket: Socket, connection:
             try {
                 websocketEventsCounter.inc({ event_type: 'message' });
                 const { sid, message, localId } = data;
+
+                // Validate input
+                if (!sid || typeof sid !== 'string' || typeof message !== 'string') {
+                    return;
+                }
 
                 log({ module: 'websocket' }, `Received message from socket ${socket.id}: sessionId=${sid}, messageLength=${message.length} bytes, connectionType=${connection.connectionType}, connectionSessionId=${connection.connectionType === 'session-scoped' ? connection.sessionId : 'N/A'}`);
 
@@ -250,6 +255,9 @@ export function sessionUpdateHandler(userId: string, socket: Socket, connection:
     }) => {
         try {
             const { sid, time } = data;
+            if (!sid || typeof sid !== 'string') {
+                return;
+            }
             let t = time;
             if (typeof t !== 'number') {
                 return;

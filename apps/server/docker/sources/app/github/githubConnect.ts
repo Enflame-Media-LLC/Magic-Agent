@@ -29,6 +29,14 @@ export async function githubConnect(
     accessToken: string
 ): Promise<void> {
     const userId = ctx.uid;
+
+    // Validate externally-sourced profile fields before they reach database queries.
+    // The GitHub API response is cast without runtime validation, so enforce the
+    // expected scalar types here to block query-operator object injection.
+    if (typeof githubProfile.id !== 'number' || typeof githubProfile.login !== 'string' || typeof githubProfile.avatar_url !== 'string') {
+        throw new Error('Invalid GitHub profile data');
+    }
+
     const githubUserId = githubProfile.id.toString();
 
     // Step 1: Check if user is already connected to this exact GitHub account

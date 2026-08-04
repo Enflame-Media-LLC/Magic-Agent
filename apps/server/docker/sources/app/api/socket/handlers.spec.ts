@@ -526,6 +526,18 @@ describe('WebSocket Handlers Integration Tests', () => {
                 expect(callback).toHaveBeenCalledWith({ result: 'error' });
             });
 
+            it('should reject query-operator object injection in sid', async () => {
+                const callback = vi.fn();
+                await socket.__trigger('update-metadata', {
+                    sid: { not: '' }, // NoSQL-style operator injection payload
+                    metadata: '{"encrypted": "new-metadata"}',
+                    expectedVersion: 1,
+                }, callback);
+
+                expect(callback).toHaveBeenCalledWith({ result: 'error' });
+                expect(db.session.findUnique).not.toHaveBeenCalled();
+            });
+
             it('should handle race condition in atomic update', async () => {
                 const session = createMockSession({ id: 'sess-123', metadataVersion: 1 });
                 vi.mocked(db.session.findUnique).mockResolvedValue(session as any);
@@ -804,6 +816,21 @@ describe('WebSocket Handlers Integration Tests', () => {
                     message: 'Machine not found',
                 });
             });
+
+            it('should reject query-operator object injection in machineId', async () => {
+                const callback = vi.fn();
+                await socket.__trigger('machine-update-metadata', {
+                    machineId: { not: '' }, // NoSQL-style operator injection payload
+                    metadata: '{}',
+                    expectedVersion: 1,
+                }, callback);
+
+                expect(callback).toHaveBeenCalledWith({
+                    result: 'error',
+                    message: 'Invalid parameters',
+                });
+                expect(db.machine.findFirst).not.toHaveBeenCalled();
+            });
         });
 
         describe('machine-update-state', () => {
@@ -882,6 +909,19 @@ describe('WebSocket Handlers Integration Tests', () => {
                     result: 'error',
                     message: 'Artifact not found',
                 });
+            });
+
+            it('should reject query-operator object injection in artifactId', async () => {
+                const callback = vi.fn();
+                await socket.__trigger('artifact-read', {
+                    artifactId: { not: '' }, // NoSQL-style operator injection payload
+                }, callback);
+
+                expect(callback).toHaveBeenCalledWith({
+                    result: 'error',
+                    message: 'Invalid parameters',
+                });
+                expect(db.artifact.findFirst).not.toHaveBeenCalled();
             });
         });
 
@@ -1143,6 +1183,20 @@ describe('WebSocket Handlers Integration Tests', () => {
                     ok: false,
                     error: 'Session or machine not found',
                 });
+            });
+
+            it('should reject query-operator object injection in sessionId', async () => {
+                const callback = vi.fn();
+                await socket.__trigger('access-key-get', {
+                    sessionId: { not: '' }, // NoSQL-style operator injection payload
+                    machineId: 'machine-456',
+                }, callback);
+
+                expect(callback).toHaveBeenCalledWith({
+                    ok: false,
+                    error: 'Invalid parameters: sessionId and machineId are required',
+                });
+                expect(db.session.findFirst).not.toHaveBeenCalled();
             });
 
             it('should return error for invalid parameters', async () => {

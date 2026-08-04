@@ -18,7 +18,7 @@ export function machineUpdateHandler(userId: string, socket: Socket) {
             machineAliveEventsCounter.inc();
 
             // Basic validation
-            if (!data || typeof data.time !== 'number' || !data.machineId) {
+            if (!data || typeof data.time !== 'number' || !data.machineId || typeof data.machineId !== 'string') {
                 return;
             }
 
@@ -56,7 +56,7 @@ export function machineUpdateHandler(userId: string, socket: Socket) {
             const { machineId, metadata, expectedVersion } = data;
 
             // Validate input
-            if (!machineId || typeof metadata !== 'string' || typeof expectedVersion !== 'number') {
+            if (!machineId || typeof machineId !== 'string' || typeof metadata !== 'string' || typeof expectedVersion !== 'number') {
                 if (callback) {
                     callback({ result: 'error', message: 'Invalid parameters' });
                 }
@@ -150,7 +150,7 @@ export function machineUpdateHandler(userId: string, socket: Socket) {
             const { machineId, daemonState, expectedVersion } = data;
 
             // Validate input
-            if (!machineId || typeof daemonState !== 'string' || typeof expectedVersion !== 'number') {
+            if (!machineId || typeof machineId !== 'string' || typeof daemonState !== 'string' || typeof expectedVersion !== 'number') {
                 if (callback) {
                     callback({ result: 'error', message: 'Invalid parameters' });
                 }
