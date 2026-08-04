@@ -31,6 +31,8 @@ const { t } = useI18n();
       :src="`data:${props.content.mimeType};base64,${props.content.data}`"
       :alt="t('acp.content.image')"
       class="max-h-80 max-w-full object-contain"
+      decoding="async"
+      loading="lazy"
     />
   </div>
 

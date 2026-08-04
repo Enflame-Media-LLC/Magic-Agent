@@ -64,7 +64,9 @@ const imageAlt = computed(
       v-if="showImage"
       :alt="imageAlt"
       :class="isGrid ? 'size-full object-cover' : 'size-full rounded object-cover'"
+      decoding="async"
       :height="isGrid ? 96 : 20"
+      loading="lazy"
       :src="fileUrl"
       :width="isGrid ? 96 : 20"
     />

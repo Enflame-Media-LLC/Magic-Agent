@@ -15,7 +15,9 @@ const props = defineProps<Props>();
     v-bind="$attrs"
     :alt="`${props.provider} logo`"
     :class="cn('size-3 dark:invert', props.class)"
+    decoding="async"
     height="12"
+    loading="lazy"
     :src="`https://models.dev/logos/${props.provider}.svg`"
     width="12"
   />
