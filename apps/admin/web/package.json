@@ -5,7 +5,7 @@
   "type": "module",
   "main": "src/worker/index.ts",
   "scripts": {
-    "preinstall": "node -e \"if(!process.env.INIT_CWD?.endsWith('/magicagent')){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
+    "preinstall": "node -e \"const p=require('path');let n;try{n=require(p.join(process.env.INIT_CWD||'','package.json')).name}catch{}if(n!=='magic-agent'){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
     "help": "echo '\nHappy Admin - Available Scripts\n================================\n\nDevelopment:\n  dev                Start Wrangler dev server\n\nDeployment:\n  deploy:dev         Deploy to development environment\n  deploy:prod        Deploy to production environment\n\nCode Quality:\n  typecheck          Type-check TypeScript\n  lint               Run vite-plus check (format + lint + typecheck)\n  lint:fix           Run vite-plus check with auto-fix\n  test               Run vite-plus tests\n  test:watch         Run vite-plus tests in watch mode\n  test:coverage      Run vite-plus tests with coverage\n\nDatabase:\n  db:generate        Generate Better-Auth migrations\n  db:migrate         Apply migrations to remote dev D1\n  db:migrate:prod    Apply migrations to remote prod D1\n'",
     "dev": "wrangler dev",
     "deploy:dev": "wrangler deploy --env dev",

@@ -28,7 +28,7 @@
     "typescript": "^6.0.3"
   },
   "scripts": {
-    "preinstall": "node -e \"if(!process.env.INIT_CWD?.endsWith('/magicagent')){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
+    "preinstall": "node -e \"const p=require('path');let n;try{n=require(p.join(process.env.INIT_CWD||'','package.json')).name}catch{}if(n!=='magic-agent'){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --config ../../oxlint.json src/",

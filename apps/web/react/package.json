@@ -3,7 +3,7 @@
   "main": "index.ts",
   "version": "1.0.0",
   "scripts": {
-    "preinstall": "node -e \"if(!process.env.INIT_CWD?.endsWith('/magicagent')){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
+    "preinstall": "node -e \"const p=require('path');let n;try{n=require(p.join(process.env.INIT_CWD||'','package.json')).name}catch{}if(n!=='magic-agent'){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
     "help": "echo '\nHappy App - Available Scripts\n==============================\n\nDevelopment:\n  start              Start Expo dev server\n  start:local-server Start with local server and debug flags\n  web                Start web version\n\nMobile:\n  android            Run on Android emulator\n  ios                Run on iOS simulator\n  ios:connected-device Run on connected iOS device\n  prebuild           Generate native iOS/Android directories\n\nBuild & Test:\n  typecheck          Type-check TypeScript\n  test               Run tests with Vitest\n\nProduction:\n  submit             Submit to App Store via EAS\n  ota                Deploy OTA update to preview branch\n  ota:production     Deploy OTA update to production\n\nUtilities:\n  generate-theme     Generate theme configuration\n'",
     "start": "npx expo start",
     "start:local-server": "EXPO_PUBLIC_DANGEROUSLY_LOG_TO_SERVER_FOR_AI_AUTO_DEBUGGING=1 EXPO_PUBLIC_DEBUG=1 EXPO_PUBLIC_HAPPY_SERVER_URL=http://localhost:3005 npx expo start -c",
