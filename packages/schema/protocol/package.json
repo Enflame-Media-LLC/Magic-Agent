@@ -29,13 +29,13 @@
   "devDependencies": {
     "quicktype": "^23.2.6",
     "quicktype-core": "^23.2.6",
-    "tsdown": "^0.21.8",
-    "tsx": "^4.21.0",
-    "typescript": "^6.0.2",
-    "zod": "^4.3.6"
+    "tsdown": "^0.22.1",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3",
+    "zod": "^4.4.3"
   },
   "scripts": {
-    "preinstall": "node -e \"if(!process.env.INIT_CWD?.endsWith('/happy')){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
+    "preinstall": "node -e \"if(!process.env.INIT_CWD?.endsWith('/magicagent')){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --config ../../oxlint.json src/",

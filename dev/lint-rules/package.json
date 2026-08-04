@@ -13,7 +13,7 @@
     "src"
   ],
   "scripts": {
-    "preinstall": "node -e \"if(!process.env.INIT_CWD?.endsWith('/happy')){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
+    "preinstall": "node -e \"if(!process.env.INIT_CWD?.endsWith('/magicagent')){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
     "lint": "oxlint src/",
     "lint:fix": "oxlint --fix src/",
     "format": "oxfmt src/",
@@ -31,9 +31,9 @@
   "license": "UNLICENSED",
   "private": true,
   "devDependencies": {
-    "@typescript-eslint/parser": "^8.58.2",
-    "eslint": "^10.2.0",
-    "oxlint": "^1.60.0"
+    "@typescript-eslint/parser": "^8.60.1",
+    "eslint": "^10.4.1",
+    "oxlint": "^1.68.0"
   },
   "peerDependencies": {
     "oxlint": ">=1.36.0"

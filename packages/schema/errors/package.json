@@ -24,11 +24,11 @@
   ],
   "sideEffects": false,
   "devDependencies": {
-    "tsdown": "^0.21.8",
-    "typescript": "^6.0.2"
+    "tsdown": "^0.22.1",
+    "typescript": "^6.0.3"
   },
   "scripts": {
-    "preinstall": "node -e \"if(!process.env.INIT_CWD?.endsWith('/happy')){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
+    "preinstall": "node -e \"if(!process.env.INIT_CWD?.endsWith('/magicagent')){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
     "build": "tsdown",
     "typecheck": "tsc --noEmit",
     "lint": "oxlint --config ../../oxlint.json src/",
