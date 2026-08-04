@@ -18,23 +18,24 @@ export async function authApprove(token: string, publicKey: Uint8Array, answerV1
         {
             params: {
                 publicKey: publicKeyBase64
+            },
+            headers: {
+                'Authorization': `Bearer ${token}`,
             }
         }
     );
     
     const { status, supportsV2 } = statusResponse.data;
     
-    // Handle different status cases
+    // Only a pending request can be approved for the current authenticated user.
     if (status === 'not_found') {
-        // Already authorized, no need to approve again
-        logger.debug('[authApprove] Auth request already authorized or not found');
-        return;
+        logger.debug('[authApprove] Auth request not found');
+        throw new Error('Terminal auth request not found. Please generate a new QR code and try again.');
     }
 
     if (status === 'authorized') {
-        // Already authorized, no need to approve again
         logger.debug('[authApprove] Auth request already authorized');
-        return;
+        throw new Error('Terminal auth request is already authorized. Please generate a new QR code and try again.');
     }
     
     // Handle pending status
