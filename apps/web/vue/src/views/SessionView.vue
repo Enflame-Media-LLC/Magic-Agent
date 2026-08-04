@@ -625,7 +625,12 @@ function handlePromptKeydown(event: KeyboardEvent): void {
       padding="compact"
       class="border-t bg-muted/20"
     >
-      <PromptInput class="rounded-2xl" :multiple="true" @submit="handlePromptSubmit">
+      <!--
+        Attachments are intentionally disabled (HAP-1097): sendSessionMessage does not
+        accept files, so enabling :multiple would silently drop pasted/dropped files.
+        Follow-up to wire the attachment pipeline is tracked separately.
+      -->
+      <PromptInput class="rounded-2xl" @submit="handlePromptSubmit">
         <PromptInputBody>
           <PromptInputHeader class="justify-between">
             <div class="flex items-center gap-2 text-[11px] text-muted-foreground">
