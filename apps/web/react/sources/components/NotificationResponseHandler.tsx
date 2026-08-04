@@ -13,6 +13,7 @@
 import * as React from 'react';
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
+import { isValidOpaqueSessionId } from '@/utils/sessionId';
 
 interface NotificationResponseHandlerProps {
     /** Whether the app has finished initializing - navigation only occurs after init */
@@ -36,15 +37,19 @@ export function NotificationResponseHandler({ isInitialized }: NotificationRespo
             screen?: string;
             params?: { id?: string };
         };
-        // Navigate to session if notification contains session screen data
-        if (data?.screen === 'session' && data?.params?.id) {
-            const sessionId = data.params.id;
-            // Basic validation - session IDs should be non-empty strings
-            if (sessionId.length > 0) {
-                router.push(`/(app)/session/${sessionId}`);
-                // Clear the response so we don't navigate again on re-renders
-                Notifications.clearLastNotificationResponseAsync();
+        // Navigate to session if notification contains valid session screen data.
+        // Notification payloads are untrusted, so keep the id constrained to the
+        // expected opaque session-id formats before using it as a route param.
+        if (data?.screen === 'session') {
+            const sessionId = data.params?.id;
+            if (isValidOpaqueSessionId(sessionId)) {
+                router.push({
+                    pathname: '/(app)/session/[id]',
+                    params: { id: sessionId },
+                });
             }
+            // Clear the response so we don't navigate again on re-renders.
+            Notifications.clearLastNotificationResponseAsync();
         }
     }, [isInitialized, lastNotificationResponse]);
 
