@@ -47,9 +47,8 @@ import type { NormalizedMessage } from "@/services/messages/types";
 import { cn } from "@/lib/utils";
 
 // AI Elements ToolHeader accepts this narrower state union from @ai-sdk.
-// Our adapter's AIToolState union is a superset (includes 'output-streaming')
-// so we narrow it here and upgrade 'error' tool results to 'output-error' so
-// the StatusBadge renders the correct destructive styling.
+// We upgrade 'error' tool results to 'output-error' so the StatusBadge
+// renders the correct destructive styling.
 type ToolHeaderState =
   | "input-streaming"
   | "input-available"
@@ -153,11 +152,7 @@ const toolState = computed<ToolHeaderState>(() => {
   if (!t) return "input-available";
   // adapter maps error -> 'output-available'; upgrade to 'output-error' for UI.
   if (t.tool.state === "error") return "output-error";
-  const adapted = adaptToolState(t.tool.state, t.tool.permission);
-  // adapter union includes 'output-streaming' which ToolHeader doesn't accept;
-  // our adapter never actually returns it for these inputs, but narrow safely.
-  if (adapted === "output-streaming") return "output-available";
-  return adapted;
+  return adaptToolState(t.tool.state, t.tool.permission);
 });
 
 const toolErrorText = computed(() => {

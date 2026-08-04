@@ -67,7 +67,6 @@ export type AIToolState =
   | "input-streaming"
   | "input-available"
   | "approval-requested"
-  | "output-streaming"
   | "output-available";
 
 export type AIToolApproval =
