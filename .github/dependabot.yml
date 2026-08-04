@@ -1,43 +1,115 @@
-# Dependabot configuration for happy-shared repository
-# Enables automated security updates for npm dependencies
-# Part of HAP-395 implementation
-
 version: 2
 updates:
-  # npm dependencies for the monorepo
-  - package-ecosystem: "npm"
-    directory: "/"
+  - package-ecosystem: npm
+    directory: /
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: daily
+      day: monday
       time: "09:00"
-      timezone: "America/Denver"
-    open-pull-requests-limit: 10
-    labels:
-      - "dependencies"
-      - "security"
+      timezone: America/Denver
     commit-message:
-      prefix: "chore(deps)"
+      prefix: chore(deps)
+    labels:
+      - dependencies
+      - security
+    open-pull-requests-limit: 10
     groups:
-      # Group minor/patch updates to reduce PR noise
       minor-and-patch:
         patterns:
-          - "*"
+          - '*'
         update-types:
-          - "minor"
-          - "patch"
-
-  # GitHub Actions dependencies
-  - package-ecosystem: "github-actions"
-    directory: "/"
+          - minor
+          - patch
+  - package-ecosystem: github-actions
+    directory: /
     schedule:
-      interval: "weekly"
-      day: "monday"
+      interval: daily
+      day: monday
       time: "09:00"
-      timezone: "America/Denver"
-    open-pull-requests-limit: 5
-    labels:
-      - "dependencies"
-      - "github-actions"
+      timezone: America/Denver
     commit-message:
-      prefix: "ci(deps)"
+      prefix: ci(deps)
+    labels:
+      - dependencies
+      - github-actions
+    open-pull-requests-limit: 5
+
+  - package-ecosystem: npm
+    directory: /apps/admin/api
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /apps/admin/web
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /apps/cli
+    schedule:
+      interval: daily
+
+  - package-ecosystem: bundler
+    directory: /apps/mobile/android/fastlane
+    schedule:
+      interval: daily
+
+  - package-ecosystem: bundler
+    directory: /apps/mobile/ios
+    schedule:
+      interval: daily
+
+  - package-ecosystem: docker
+    directory: /apps/server/docker
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /apps/server/docker
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /apps/server/workers
+    schedule:
+      interval: daily
+
+  - package-ecosystem: docker
+    directory: /apps/web/react
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /apps/web/react
+    schedule:
+      interval: daily
+
+  - package-ecosystem: cargo
+    directory: /apps/web/react/src-tauri
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /apps/web/vue
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /apps/web/vue/scripts/pwa-screenshots
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /dev/lint-rules
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /packages/schema/errors
+    schedule:
+      interval: daily
+
+  - package-ecosystem: npm
+    directory: /packages/schema/protocol
+    schedule:
+      interval: daily

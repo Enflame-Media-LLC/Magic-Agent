@@ -2,7 +2,7 @@
   "private": true,
   "name": "magic-agent",
   "description": "Magic Agent monorepo - Mobile and web client for Claude Code and Codex",
-  "packageManager": "yarn@4.12.0",
+  "packageManager": "yarn@4.14.1",
   "workspaces": [
     "packages/schema/errors",
     "packages/schema/protocol",
@@ -38,10 +38,18 @@
     "deploy:stack:pro": "turbo run deploy:prod --filter=happy-server-workers --filter=happy",
     "deploy:stack:dev": "turbo run deploy:dev --filter=happy-server-workers --filter=happy"
   },
+  "overrides": {
+    "minimatch": "^10.2.5"
+  },
+  "resolutions": {
+    "minimatch": "^10.2.5"
+  },
   "devDependencies": {
-    "tsx": "^4.21.0",
-    "turbo": "^2.9.6",
-    "vite-plus": "^0.1.18",
+    "drizzle-kit": "^1.0.0-rc.2",
+    "drizzle-orm": "^1.0.0-rc.2",
+    "tsx": "^4.22.4",
+    "turbo": "^2.9.16",
+    "vite-plus": "^0.1.24",
     "vite-tsconfig-paths": "^6.1.1"
   },
   "engines": {
