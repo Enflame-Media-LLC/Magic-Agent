@@ -170,8 +170,8 @@ function parseRenameCopy(matches: (string | undefined)[]): GitFileEntryV2 | null
         hashHead: matches[7],
         hashIndex: matches[8],
         renameScore: parseInt(matches[10] || '0', 10),
-        from: matches[11],
-        path: matches[12]
+        path: matches[11],
+        from: matches[12]
     };
 }
 
