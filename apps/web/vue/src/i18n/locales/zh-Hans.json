@@ -295,6 +295,7 @@
     "resumeClaudeOnly": "继续功能仅适用于 Claude 会话"
   },
   "session": {
+    "encryptedMessagePlaceholder": "[Encrypted content]",
     "inputPlaceholder": "输入消息...",
     "inputPlaceholderArchived": "会话已归档",
     "archivedBannerText": "此会话已归档",

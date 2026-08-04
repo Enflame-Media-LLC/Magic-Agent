@@ -295,6 +295,7 @@
     "resumeClaudeOnly": "Возобновление доступно только для сессий Claude"
   },
   "session": {
+    "encryptedMessagePlaceholder": "[Encrypted content]",
     "inputPlaceholder": "Введите сообщение...",
     "inputPlaceholderArchived": "Сессия архивирована",
     "archivedBannerText": "Эта сессия архивирована",

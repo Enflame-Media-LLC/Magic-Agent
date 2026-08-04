@@ -8,6 +8,7 @@
 
 import { computed, ref, onMounted, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { useForm } from "@tanstack/vue-form";
 import { z } from "zod";
 import { useSessionsStore } from "@/stores/sessions";
@@ -60,6 +61,7 @@ interface SessionMetadata {
 
 const route = useRoute();
 const router = useRouter();
+const { t } = useI18n();
 const sessionsStore = useSessionsStore();
 const messagesStore = useMessagesStore();
 const authStore = useAuthStore();
@@ -282,7 +284,7 @@ const normalizedMessages = computed<NormalizedMessage[]>(() => {
         sourceMessageId: message.id,
         localId: message.localId,
         createdAt: message.createdAt,
-        text: "[Encrypted content]",
+        text: t("session.encryptedMessagePlaceholder"),
       });
       continue;
     }

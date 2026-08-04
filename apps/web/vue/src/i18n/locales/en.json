@@ -296,6 +296,7 @@
     "resumeClaudeOnly": "Resume is only available for Claude sessions"
   },
   "session": {
+    "encryptedMessagePlaceholder": "[Encrypted content]",
     "inputPlaceholder": "Type a message ...",
     "inputPlaceholderArchived": "Session is archived",
     "archivedBannerText": "This session is archived",

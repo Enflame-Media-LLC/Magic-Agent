@@ -295,6 +295,7 @@
     "resumeClaudeOnly": "Reanudar solo está disponible para sesiones de Claude"
   },
   "session": {
+    "encryptedMessagePlaceholder": "[Encrypted content]",
     "inputPlaceholder": "Escribe un mensaje...",
     "inputPlaceholderArchived": "La sesión está archivada",
     "archivedBannerText": "Esta sesión está archivada",

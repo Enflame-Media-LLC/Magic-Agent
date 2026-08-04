@@ -295,6 +295,7 @@
     "resumeClaudeOnly": "Wznowienie jest dostepne tylko dla sesji Claude"
   },
   "session": {
+    "encryptedMessagePlaceholder": "[Encrypted content]",
     "inputPlaceholder": "Wpisz wiadomosc...",
     "inputPlaceholderArchived": "Sesja jest zarchiwizowana",
     "archivedBannerText": "Ta sesja jest zarchiwizowana",

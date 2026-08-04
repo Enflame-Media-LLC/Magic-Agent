@@ -295,6 +295,7 @@
     "resumeClaudeOnly": "Reprendre nomes esta disponible per a sessions de Claude"
   },
   "session": {
+    "encryptedMessagePlaceholder": "[Encrypted content]",
     "inputPlaceholder": "Escriu un missatge...",
     "inputPlaceholderArchived": "La sessio esta arxivada",
     "archivedBannerText": "Aquesta sessio esta arxivada",

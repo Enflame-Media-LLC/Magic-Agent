@@ -295,6 +295,7 @@
     "resumeClaudeOnly": "Retomar esta disponivel apenas para sessoes Claude"
   },
   "session": {
+    "encryptedMessagePlaceholder": "[Encrypted content]",
     "inputPlaceholder": "Digite uma mensagem ...",
     "inputPlaceholderArchived": "A sessao esta arquivada",
     "archivedBannerText": "Esta sessao esta arquivada",
