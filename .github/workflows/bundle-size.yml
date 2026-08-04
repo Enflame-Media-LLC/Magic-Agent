@@ -35,8 +35,8 @@ jobs:
     name: Analyze Bundle Size
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # Run on PRs only (push to main handled by update-baseline job)
-    if: github.event_name == 'pull_request'
+    # Run on PRs and manual dispatch (push to main handled by update-baseline job)
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -121,7 +121,9 @@ jobs:
           echo "js_size=$JS_SIZE" >> "$GITHUB_OUTPUT"
 
       # Post comment on PR using github-script (safe - no shell injection)
+      # Skipped on workflow_dispatch: there is no PR to comment on
       - name: Post bundle size comment
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v9
         with:
           script: |
@@ -186,7 +188,8 @@ jobs:
     name: Update Baseline
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: github.event_name == 'push'
+    # Run on push to main, or a manual dispatch from main
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
 
     steps:
       - name: Harden the runner (Audit all outbound calls)

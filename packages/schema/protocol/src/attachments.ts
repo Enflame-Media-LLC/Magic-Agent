@@ -85,7 +85,12 @@ export const AttachmentBlobPayloadSchema = z.object({
     filename: z.string().min(1).max(STRING_LIMITS.TITLE_MAX),
     /** MIME type of the raw file bytes */
     mimeType: z.string().min(1).max(STRING_LIMITS.NAME_MAX),
-    /** Base64-encoded raw file bytes */
+    /**
+     * Base64-encoded raw file bytes.
+     *
+     * An empty string is intentionally valid: zero-byte files (e.g. an empty
+     * text file) are legitimate attachments and round-trip as empty payloads.
+     */
     data: z
         .string()
         .max(ATTACHMENT_LIMITS.MAX_DATA_BASE64_LENGTH)
