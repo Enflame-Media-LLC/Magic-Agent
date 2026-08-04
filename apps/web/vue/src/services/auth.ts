@@ -95,6 +95,11 @@ export function generateWebAuthQRData(keypair: BoxKeyPair): string {
   return `happy://terminal?${publicKeyBase64Url}`;
 }
 
+export function formatTerminalFingerprint(publicKey: Uint8Array): string {
+  const fingerprint = encodeBase64(publicKey, "base64url").slice(0, 20).toUpperCase();
+  return fingerprint.match(/.{1,4}/g)?.join("-") ?? fingerprint;
+}
+
 /**
  * Start authentication request - sends public key to server
  */

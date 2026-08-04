@@ -34,6 +34,7 @@ import { useAuthStore } from "@/stores/auth";
 import {
   parseConnectionCode,
   approveCliConnection,
+  formatTerminalFingerprint,
   authenticateWithSecretKey,
   createAuthSession,
   CliApprovalError,
@@ -47,7 +48,12 @@ import type { StoredCredentials } from "@/services/storage";
  */
 export interface ConnectionResult {
   success: boolean;
-  errorCode?: CliConnectionErrorCode | "parse_error" | "not_authenticated" | "unknown";
+  errorCode?:
+    | CliConnectionErrorCode
+    | "parse_error"
+    | "not_authenticated"
+    | "cancelled"
+    | "unknown";
   errorMessage?: string;
 }
 
@@ -161,6 +167,21 @@ export function useAuth() {
           success: false,
           errorCode: "not_authenticated",
           errorMessage: errorMessage.value,
+        };
+      }
+
+      const fingerprint = formatTerminalFingerprint(connectionInfo.publicKey);
+      const confirmed = window.confirm(
+        `Only continue if this fingerprint is shown in the terminal you intend to connect:
+
+${fingerprint}`,
+      );
+
+      if (!confirmed) {
+        return {
+          success: false,
+          errorCode: "cancelled",
+          errorMessage: "Terminal pairing cancelled.",
         };
       }
 

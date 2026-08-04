@@ -99,6 +99,11 @@ function selectAuthenticationMethod(): Promise<AuthMethod | null> {
     });
 }
 
+function formatTerminalFingerprint(publicKey: Uint8Array): string {
+    const fingerprint = encodeBase64Url(publicKey).slice(0, 20).toUpperCase();
+    return fingerprint.match(/.{1,4}/g)?.join('-') ?? fingerprint;
+}
+
 /**
  * Handle mobile authentication flow
  */
@@ -112,6 +117,9 @@ async function doMobileAuth(keypair: tweetnacl.BoxKeyPair, options?: { signal?: 
 
     console.log('\nOr manually enter this URL:');
     console.log(authUrl);
+    console.log('');
+    console.log('Confirm this fingerprint in the app before approving:');
+    console.log(formatTerminalFingerprint(keypair.publicKey));
     console.log('');
 
     return await waitForAuthentication(keypair, options);
@@ -142,6 +150,9 @@ async function doWebAuth(keypair: tweetnacl.BoxKeyPair, options?: { signal?: Abo
     // https://github.com/slopus/happy/issues/19
     console.log('\nIf the browser did not open, please copy and paste this URL:');
     console.log(webUrl);
+    console.log('');
+    console.log('Confirm this fingerprint in the app before approving:');
+    console.log(formatTerminalFingerprint(keypair.publicKey));
     console.log('');
 
     return await waitForAuthentication(keypair, options);

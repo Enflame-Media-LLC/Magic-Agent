@@ -3,16 +3,15 @@ import { encodeBase64 } from "../encryption/base64";
 import { getServerUrl } from "@/sync/serverConfig";
 import { logger } from '@/utils/logger';
 
-interface AuthRequestStatus {
+export interface AuthRequestStatus {
     status: 'not_found' | 'pending' | 'authorized';
     supportsV2: boolean;
 }
 
-export async function authApprove(token: string, publicKey: Uint8Array, answerV1: Uint8Array, answerV2: Uint8Array) {
+export async function getAuthRequestStatus(publicKey: Uint8Array): Promise<AuthRequestStatus> {
     const API_ENDPOINT = getServerUrl();
     const publicKeyBase64 = encodeBase64(publicKey);
-    
-    // First, check the auth request status
+
     const statusResponse = await axios.get<AuthRequestStatus>(
         `${API_ENDPOINT}/v1/auth/request/status`,
         {
@@ -21,8 +20,14 @@ export async function authApprove(token: string, publicKey: Uint8Array, answerV1
             }
         }
     );
-    
-    const { status, supportsV2 } = statusResponse.data;
+
+    return statusResponse.data;
+}
+
+export async function authApprove(token: string, publicKey: Uint8Array, answerV1: Uint8Array, answerV2: Uint8Array, requestStatus?: AuthRequestStatus) {
+    const API_ENDPOINT = getServerUrl();
+    const publicKeyBase64 = encodeBase64(publicKey);
+    const { status, supportsV2 } = requestStatus ?? await getAuthRequestStatus(publicKey);
     
     // Handle different status cases
     if (status === 'not_found') {
