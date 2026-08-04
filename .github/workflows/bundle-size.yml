@@ -17,9 +17,11 @@ on:
   pull_request:
     branches: [main]
     paths:
-      # Only run when app code changes
+      # Only run when app code changes.
+      # Note: packages/schema/** is intentionally NOT a trigger. apps/web/react
+      # is no longer part of the root yarn workspaces (Vue migration), so schema
+      # changes cannot affect this bundle and would fail the workspace build.
       - 'apps/web/react/**'
-      - 'packages/schema/**'
       - '!apps/web/react/**/*.md'
       - '!apps/web/react/**/*.test.ts'
       - '!apps/web/react/**/*.test.tsx'
@@ -27,7 +29,6 @@ on:
     branches: [main]
     paths:
       - 'apps/web/react/**'
-      - 'packages/schema/**'
 
 permissions:
   contents: read
