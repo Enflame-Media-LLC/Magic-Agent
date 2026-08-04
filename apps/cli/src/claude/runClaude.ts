@@ -20,7 +20,7 @@ import { configuration } from '@/configuration';
 import { notifyDaemonSessionStarted } from '@/daemon/controlClient';
 import { initialMachineMetadata } from '@/daemon/run';
 import { startHappyServer } from '@/claude/utils/startHappyServer';
-import { appendAttachmentNotes, resolveAttachments } from '@/claude/utils/attachments';
+import { appendAttachmentNotes, cleanupAttachmentDirectories, resolveAttachments } from '@/claude/utils/attachments';
 import { registerKillSessionHandler } from './registerKillSessionHandler';
 import { projectPath } from '../projectPath';
 import { resolve } from 'node:path';
@@ -324,8 +324,14 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
                 allowedTools: messageAllowedTools,
                 disallowedTools: messageDisallowedTools
             };
-            messageQueue.pushIsolateAndClear(specialCommand.originalMessage || message.content.text, enhancedMode);
-            logger.debugLargeJson('[start] /compact command pushed to queue:', message);
+            // Route through the delivery chain so the compact cannot overtake a
+            // prior message whose attachments are still resolving (MAG-1112)
+            messageDelivery = messageDelivery.then(() => {
+                messageQueue.pushIsolateAndClear(specialCommand.originalMessage || message.content.text, enhancedMode);
+                logger.debugLargeJson('[start] /compact command pushed to queue:', message);
+            }).catch((error) => {
+                logger.debug('[start] Failed to push /compact command:', error);
+            });
             return;
         }
 
@@ -340,8 +346,15 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
                 allowedTools: messageAllowedTools,
                 disallowedTools: messageDisallowedTools
             };
-            messageQueue.pushIsolateAndClear(specialCommand.originalMessage || message.content.text, enhancedMode);
-            logger.debugLargeJson('[start] /compact command pushed to queue:', message);
+            // Route through the delivery chain so the clear cannot execute while
+            // a prior message's attachments are still downloading, which would
+            // leak that message into the history after the clear (MAG-1112)
+            messageDelivery = messageDelivery.then(() => {
+                messageQueue.pushIsolateAndClear(specialCommand.originalMessage || message.content.text, enhancedMode);
+                logger.debugLargeJson('[start] /clear command pushed to queue:', message);
+            }).catch((error) => {
+                logger.debug('[start] Failed to push /clear command:', error);
+            });
             return;
         }
 
@@ -414,6 +427,9 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
 
             // Stop Happy MCP server
             happyServer.stop();
+
+            // Remove attachment temp files created during the session (MAG-1112)
+            await cleanupAttachmentDirectories();
 
             // Report any logger write errors that occurred during session
             logger.reportWriteErrorsIfAny();
@@ -505,6 +521,9 @@ export async function runClaude(credentials: Credentials, options: StartOptions 
     // Stop Happy MCP server
     happyServer.stop();
     logger.debug('Stopped Happy MCP server');
+
+    // Remove attachment temp files created during the session (MAG-1112)
+    await cleanupAttachmentDirectories();
 
     // Report any logger write errors that occurred during session
     logger.reportWriteErrorsIfAny();

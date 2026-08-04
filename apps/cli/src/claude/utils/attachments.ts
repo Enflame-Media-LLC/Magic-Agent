@@ -11,7 +11,7 @@
  * same session key used for message content.
  */
 
-import { mkdir, writeFile } from 'node:fs/promises'
+import { mkdir, rm, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { randomUUID } from 'node:crypto'
@@ -28,6 +28,27 @@ export interface AttachmentContext {
     encryptionKey: Uint8Array
     /** Encryption variant matching the session */
     encryptionVariant: 'legacy' | 'dataKey'
+}
+
+/** Temp directories created for resolved attachments, removed on session cleanup */
+const createdAttachmentDirectories = new Set<string>()
+
+/**
+ * Remove all attachment temp directories created during this process.
+ *
+ * Never throws: cleanup failures are logged and ignored so session shutdown
+ * is never blocked by a stray temp file.
+ */
+export async function cleanupAttachmentDirectories(): Promise<void> {
+    const directories = [...createdAttachmentDirectories]
+    createdAttachmentDirectories.clear()
+    await Promise.all(directories.map(async (directory) => {
+        try {
+            await rm(directory, { recursive: true, force: true })
+        } catch (error) {
+            logger.debug(`[attachments] Failed to remove attachment directory ${directory}:`, error)
+        }
+    }))
 }
 
 /**
@@ -113,6 +134,7 @@ export async function resolveAttachments(
             if (!directoryCreated) {
                 await mkdir(directory, { recursive: true })
                 directoryCreated = true
+                createdAttachmentDirectories.add(directory)
             }
             const filePath = join(directory, filename)
             await writeFile(filePath, Buffer.from(payload.data, 'base64'))
