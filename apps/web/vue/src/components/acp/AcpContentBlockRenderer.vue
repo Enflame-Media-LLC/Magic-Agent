@@ -32,7 +32,6 @@ const { t } = useI18n();
       :alt="t('acp.content.image')"
       class="max-h-80 max-w-full object-contain"
       decoding="async"
-      loading="lazy"
     />
   </div>
 
