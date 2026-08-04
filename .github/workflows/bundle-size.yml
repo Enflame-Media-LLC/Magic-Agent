@@ -13,22 +13,14 @@
 
 name: Bundle Size
 
+# TEMPORARILY DISABLED (manual trigger only): apps/web/react was removed from
+# the root yarn workspaces during the Vue migration, so the workspace-based
+# build below fails on every run ("doesn't seem to be part of the project").
+# This workflow was failing every PR it triggered on. Restore the
+# pull_request/push triggers once bundle tracking is migrated to the Vue app
+# or the react app gets a standalone install.
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      # Only run when app code changes.
-      # Note: packages/schema/** is intentionally NOT a trigger. apps/web/react
-      # is no longer part of the root yarn workspaces (Vue migration), so schema
-      # changes cannot affect this bundle and would fail the workspace build.
-      - 'apps/web/react/**'
-      - '!apps/web/react/**/*.md'
-      - '!apps/web/react/**/*.test.ts'
-      - '!apps/web/react/**/*.test.tsx'
-  push:
-    branches: [main]
-    paths:
-      - 'apps/web/react/**'
+  workflow_dispatch:
 
 permissions:
   contents: read
