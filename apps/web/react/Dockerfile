@@ -1,5 +1,5 @@
 # Stage 1: Building the application
-FROM node:20-alpine AS builder
+FROM node:26-alpine AS builder
 
 # Build argument for PostHog API key with default empty value
 ARG POSTHOG_API_KEY=""
