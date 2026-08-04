@@ -13,6 +13,7 @@ import { FileIcon } from '@/components/FileIcon';
 import { AppError, ErrorCodes, getSmartErrorMessage } from '@/utils/errors';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { logger } from '@/utils/logger';
+import { quotePosixShellArg } from '@/utils/shellQuote';
 
 interface FileContent {
     content: string;
@@ -197,7 +198,7 @@ function FileScreen() {
                             // If someone is using a custom diff tool like
                             // difftastic, the parser would break. So instead
                             // force git to use the built in diff tool.
-                            command: `git diff --no-ext-diff "${filePath}"`,
+                            command: `git diff --no-ext-diff -- ${quotePosixShellArg(filePath)}`,
                             cwd: sessionPath,
                             timeout: 5000
                         });
