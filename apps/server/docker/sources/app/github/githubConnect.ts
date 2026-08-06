@@ -68,10 +68,11 @@ export async function githubConnect(
 
     // Step 3: Upload avatar to S3 (outside transaction for performance)
     // Enforce a URL policy before fetching: the avatar_url value is externally
-    // sourced, so require HTTPS and an allowlisted GitHub avatar host, and use
-    // a bounded fetch (no redirects, timeout, response-size cap).
+    // sourced, so require HTTPS on the default port (443 normalizes to an empty
+    // port) and an allowlisted GitHub avatar host, and use a bounded fetch
+    // (no redirects, timeout, response-size cap).
     const avatarUrl = new URL(githubProfile.avatar_url);
-    if (avatarUrl.protocol !== 'https:' || !ALLOWED_AVATAR_HOSTS.has(avatarUrl.hostname)) {
+    if (avatarUrl.protocol !== 'https:' || avatarUrl.port !== '' || !ALLOWED_AVATAR_HOSTS.has(avatarUrl.hostname)) {
         throw new Error('Invalid GitHub avatar URL');
     }
     const imageResponse = await fetch(avatarUrl, {
