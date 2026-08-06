@@ -9,6 +9,12 @@ import { buildUpdateAccountUpdate, eventRouter } from "@/app/events/eventRouter"
 import { randomKeyNaked } from "@/utils/randomKeyNaked";
 import { githubDisconnect } from "./githubDisconnect";
 
+// SSRF guardrails for the server-side avatar fetch: only GitHub's avatar CDN
+// over HTTPS is allowed, and the download is bounded in time and size.
+const ALLOWED_AVATAR_HOSTS = new Set(['avatars.githubusercontent.com']);
+const AVATAR_FETCH_TIMEOUT_MS = 10_000;
+const AVATAR_MAX_SIZE_BYTES = 5 * 1024 * 1024;
+
 /**
  * Connects a GitHub account to a user profile.
  * 
@@ -29,6 +35,14 @@ export async function githubConnect(
     accessToken: string
 ): Promise<void> {
     const userId = ctx.uid;
+
+    // Validate externally-sourced profile fields before they reach database queries.
+    // The GitHub API response is cast without runtime validation, so enforce the
+    // expected scalar types here to block query-operator object injection.
+    if (typeof githubProfile.id !== 'number' || typeof githubProfile.login !== 'string' || typeof githubProfile.avatar_url !== 'string') {
+        throw new Error('Invalid GitHub profile data');
+    }
+
     const githubUserId = githubProfile.id.toString();
 
     // Step 1: Check if user is already connected to this exact GitHub account
@@ -53,8 +67,29 @@ export async function githubConnect(
     }
 
     // Step 3: Upload avatar to S3 (outside transaction for performance)
-    const imageResponse = await fetch(githubProfile.avatar_url);
+    // Enforce a URL policy before fetching: the avatar_url value is externally
+    // sourced, so require HTTPS on the default port (443 normalizes to an empty
+    // port) and an allowlisted GitHub avatar host, and use a bounded fetch
+    // (no redirects, timeout, response-size cap).
+    const avatarUrl = new URL(githubProfile.avatar_url);
+    if (avatarUrl.protocol !== 'https:' || avatarUrl.port !== '' || !ALLOWED_AVATAR_HOSTS.has(avatarUrl.hostname)) {
+        throw new Error('Invalid GitHub avatar URL');
+    }
+    const imageResponse = await fetch(avatarUrl, {
+        redirect: 'error',
+        signal: AbortSignal.timeout(AVATAR_FETCH_TIMEOUT_MS)
+    });
+    if (!imageResponse.ok) {
+        throw new Error('Failed to fetch GitHub avatar');
+    }
+    const contentLength = Number(imageResponse.headers.get('content-length'));
+    if (Number.isFinite(contentLength) && contentLength > AVATAR_MAX_SIZE_BYTES) {
+        throw new Error('GitHub avatar exceeds size limit');
+    }
     const imageBuffer = await imageResponse.arrayBuffer();
+    if (imageBuffer.byteLength > AVATAR_MAX_SIZE_BYTES) {
+        throw new Error('GitHub avatar exceeds size limit');
+    }
     const avatar = await uploadImage(userId, 'avatars', 'github', githubProfile.avatar_url, Buffer.from(imageBuffer));
 
     // Extract name from GitHub profile

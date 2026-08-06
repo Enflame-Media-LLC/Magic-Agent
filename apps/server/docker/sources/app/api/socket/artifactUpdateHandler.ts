@@ -23,7 +23,7 @@ export function artifactUpdateHandler(userId: string, socket: Socket) {
             const { artifactId } = data;
 
             // Validate input
-            if (!artifactId) {
+            if (!artifactId || typeof artifactId !== 'string') {
                 if (callback) {
                     callback({ result: 'error', message: 'Invalid parameters' });
                 }
@@ -85,7 +85,7 @@ export function artifactUpdateHandler(userId: string, socket: Socket) {
             const { artifactId, header, body } = data;
 
             // Validate input
-            if (!artifactId) {
+            if (!artifactId || typeof artifactId !== 'string') {
                 if (callback) {
                     callback({ result: 'error', message: 'Invalid parameters' });
                 }
@@ -271,7 +271,7 @@ export function artifactUpdateHandler(userId: string, socket: Socket) {
             const { id, header, body, dataEncryptionKey } = data;
 
             // Validate input
-            if (!id || typeof header !== 'string' || typeof body !== 'string' || typeof dataEncryptionKey !== 'string') {
+            if (!id || typeof id !== 'string' || typeof header !== 'string' || typeof body !== 'string' || typeof dataEncryptionKey !== 'string') {
                 if (callback) {
                     callback({ result: 'error', message: 'Invalid parameters' });
                 }
@@ -364,7 +364,7 @@ export function artifactUpdateHandler(userId: string, socket: Socket) {
             const { artifactId } = data;
 
             // Validate input
-            if (!artifactId) {
+            if (!artifactId || typeof artifactId !== 'string') {
                 if (callback) {
                     callback({ result: 'error', message: 'Invalid parameters' });
                 }

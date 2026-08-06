@@ -9,7 +9,7 @@ export function accessKeyHandler(userId: string, socket: Socket) {
         try {
             const { sessionId, machineId } = data;
 
-            if (!sessionId || !machineId) {
+            if (!sessionId || typeof sessionId !== 'string' || !machineId || typeof machineId !== 'string') {
                 if (callback) {
                     callback({
                         ok: false,
