@@ -300,8 +300,11 @@ export function normalizeDecryptedMessage(params: NormalizeParams): NormalizedMe
   if (record.role === "user") {
     const contentRecord = asRecord(record.content) ?? {};
     const text = toText(contentRecord.text) ?? toText(contentRecord.content);
-    if (text) {
-      return [buildUserText(params, text, record.meta, record.meta?.displayText)];
+    const displayText = record.meta?.displayText;
+    // Attachment-only messages (MAG-1112) have empty text but carry a
+    // displayText summary; still render those.
+    if (text || displayText) {
+      return [buildUserText(params, text ?? "", record.meta, displayText)];
     }
     return [];
   }

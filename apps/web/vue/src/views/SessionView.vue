@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import {
   PromptInput,
+  PromptInputAttachments,
   PromptInputBody,
   PromptInputHeader,
   PromptInputFooter,
@@ -46,6 +47,8 @@ import {
 import { normalizeDecryptedMessage } from "@/services/messages/normalize";
 import type { NormalizedMessage } from "@/services/messages/types";
 import { sendSessionMessage } from "@/services/sync/messages";
+import type { OutgoingFileAttachment } from "@/services/sync/attachments";
+import { ATTACHMENT_LIMITS } from "@magic-agent/protocol";
 import { toast } from "vue-sonner";
 import { Info, Settings } from "lucide-vue-next";
 
@@ -90,6 +93,11 @@ const decryptedMetadata = ref<SessionMetadata | null>(null);
 const decryptedContentById = ref<Map<string, string>>(new Map());
 const isSending = ref(false);
 const isShareModalOpen = ref(false);
+
+// Files captured by PromptInput (paste/drop) awaiting the next send (MAG-1112).
+// Kept across a failed send so the user can retry without re-attaching.
+const pendingAttachments = ref<OutgoingFileAttachment[]>([]);
+const promptInputRef = ref<{ clearFiles: () => void } | null>(null);
 
 const messageSchema = z.object({
   message: z.string().min(1, "Message cannot be empty"),
@@ -406,8 +414,25 @@ function openShareModal() {
 
 async function handlePromptSubmit(payload: PromptInputMessage): Promise<void> {
   const text = payload.text ?? "";
+  pendingAttachments.value = payload.files ?? [];
+
+  // Attachment-only messages bypass the form's non-empty text validation.
+  if (!text.trim() && pendingAttachments.value.length > 0) {
+    await doSendMessage("");
+    return;
+  }
+
   messageForm.setFieldValue("message", text);
   await messageForm.handleSubmit();
+}
+
+function handlePromptError(error: { code: string; message: string }): void {
+  // submit_error re-wraps send failures that doSendMessage already toasted;
+  // only PromptInput's own validation errors (accept/max_files/max_file_size)
+  // need surfacing here.
+  if (error.code !== "submit_error") {
+    toast.error(error.message);
+  }
 }
 
 async function doSendMessage(text: string): Promise<void> {
@@ -421,13 +446,19 @@ async function doSendMessage(text: string): Promise<void> {
   }
 
   const trimmedText = text.trim();
-  if (!trimmedText) {
+  const files = pendingAttachments.value;
+  if (!trimmedText && files.length === 0) {
     return;
   }
 
   isSending.value = true;
   sendStatus.value = "submitted";
-  const result = await sendSessionMessage(session.value, trimmedText, permissionMode.value);
+  const result = await sendSessionMessage(
+    session.value,
+    trimmedText,
+    permissionMode.value,
+    files,
+  );
   isSending.value = false;
 
   if (!result.ok) {
@@ -435,15 +466,20 @@ async function doSendMessage(text: string): Promise<void> {
     const errorMessage = result.error ?? "Failed to send message";
     toast.error(errorMessage);
     // Throw so PromptInput's submit handler treats this as an error and
-    // preserves the user's input instead of clearing it on resolve.
+    // preserves the user's input and attachments instead of clearing them.
     throw new Error(errorMessage);
   }
 
+  pendingAttachments.value = [];
   sendStatus.value = "ready";
   messageForm.reset();
 }
 
 async function handleOptionPress(option: { title: string }): Promise<void> {
+  // Clear both the pending send state and PromptInput's attachment chips so a
+  // suggestion click can't leave stale attachments for the next typed message.
+  pendingAttachments.value = [];
+  promptInputRef.value?.clearFiles();
   messageForm.setFieldValue("message", option.title);
   await messageForm.handleSubmit();
 }
@@ -625,12 +661,15 @@ function handlePromptKeydown(event: KeyboardEvent): void {
       padding="compact"
       class="border-t bg-muted/20"
     >
-      <!--
-        Attachments are intentionally disabled (HAP-1097): sendSessionMessage does not
-        accept files, so enabling :multiple would silently drop pasted/dropped files.
-        Follow-up to wire the attachment pipeline is tracked separately.
-      -->
-      <PromptInput class="rounded-2xl" @submit="handlePromptSubmit">
+      <PromptInput
+        ref="promptInputRef"
+        class="rounded-2xl"
+        :multiple="true"
+        :max-files="ATTACHMENT_LIMITS.MAX_COUNT"
+        :max-file-size="ATTACHMENT_LIMITS.MAX_SIZE_BYTES"
+        @submit="handlePromptSubmit"
+        @error="handlePromptError"
+      >
         <PromptInputBody>
           <PromptInputHeader class="justify-between">
             <div class="flex items-center gap-2 text-[11px] text-muted-foreground">
@@ -661,6 +700,8 @@ function handlePromptKeydown(event: KeyboardEvent): void {
               </Button>
             </div>
           </PromptInputHeader>
+
+          <PromptInputAttachments />
 
           <PromptInputTextarea
             placeholder="Type a message..."

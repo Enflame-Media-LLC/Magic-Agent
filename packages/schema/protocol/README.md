@@ -109,6 +109,16 @@ Shared types used across the protocol.
 | `VersionedValueSchema` | `VersionedValue` | Optimistic concurrency value |
 | `NullableVersionedValueSchema` | `NullableVersionedValue` | Nullable versioned value |
 
+### Attachment Schemas
+
+Types for user message attachments carried as encrypted blob references (MAG-1112).
+
+| Schema | Type | Description |
+|--------|------|-------------|
+| `UserMessageAttachmentSchema` | `UserMessageAttachment` | Encrypted-blob reference embedded in the E2E-encrypted user message payload |
+| `AttachmentBlobPayloadSchema` | `AttachmentBlobPayload` | Decrypted attachment blob content (base64 file bytes) |
+| `ATTACHMENT_LIMITS` | — | Client-side count/size limits for attachments |
+
 ### Session Sharing Schemas
 
 Types for sharing sessions with other users (HAP-766).

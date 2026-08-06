@@ -25,7 +25,7 @@ import type {
   ApiEphemeralUpdate,
 } from '@magic-agent/protocol'
 
-import { McpSyncStateSchema } from '@magic-agent/protocol'
+import { McpSyncStateSchema, UserMessageAttachmentSchema } from '@magic-agent/protocol'
 
 // =============================================================================
 // TYPE ALIASES (For internal use)
@@ -380,6 +380,8 @@ export const UserMessageSchema = z.object({
     type: z.literal('text'),
     text: z.string()
   }),
+  /** Encrypted-blob references for attached files (MAG-1112) */
+  attachments: z.array(UserMessageAttachmentSchema).optional(),
   localKey: z.string().optional(), // Mobile messages include this
   meta: MessageMetaSchema.optional()
 })

@@ -13,21 +13,14 @@
 
 name: Bundle Size
 
+# TEMPORARILY DISABLED (manual trigger only): apps/web/react was removed from
+# the root yarn workspaces during the Vue migration, so the workspace-based
+# build below fails on every run ("doesn't seem to be part of the project").
+# This workflow was failing every PR it triggered on. Restore the
+# pull_request/push triggers once bundle tracking is migrated to the Vue app
+# or the react app gets a standalone install.
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      # Only run when app code changes
-      - 'apps/web/react/**'
-      - 'packages/schema/**'
-      - '!apps/web/react/**/*.md'
-      - '!apps/web/react/**/*.test.ts'
-      - '!apps/web/react/**/*.test.tsx'
-  push:
-    branches: [main]
-    paths:
-      - 'apps/web/react/**'
-      - 'packages/schema/**'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -42,8 +35,11 @@ jobs:
     name: Analyze Bundle Size
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    # Run on PRs only (push to main handled by update-baseline job)
-    if: github.event_name == 'pull_request'
+    # Run on PRs and manual dispatch (push to main handled by update-baseline job).
+    # While the pull_request trigger above is disabled, only the
+    # workflow_dispatch term can fire; the pull_request term is kept so this
+    # guard stays correct once the header `on:` triggers are restored.
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
 
     steps:
       - name: Harden the runner (Audit all outbound calls)
@@ -128,7 +124,9 @@ jobs:
           echo "js_size=$JS_SIZE" >> "$GITHUB_OUTPUT"
 
       # Post comment on PR using github-script (safe - no shell injection)
+      # Skipped on workflow_dispatch: there is no PR to comment on
       - name: Post bundle size comment
+        if: github.event_name == 'pull_request'
         uses: actions/github-script@v9
         with:
           script: |
@@ -193,7 +191,8 @@ jobs:
     name: Update Baseline
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    if: github.event_name == 'push'
+    # Run on push to main, or a manual dispatch from main
+    if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main')
 
     steps:
       - name: Harden the runner (Audit all outbound calls)

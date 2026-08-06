@@ -47,9 +47,13 @@ if (!context) {
 
 // fileInputRef used as template ref; addFiles/submitForm used below
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const { fileInputRef, addFiles, submitForm } = context;
+const { fileInputRef, addFiles, submitForm, clearFiles } = context;
 void formRef;
 void fileInputRef;
+
+// Allow parents to clear attachment chips when they bypass submitForm
+// (e.g. sending a suggestion instead of the composed message).
+defineExpose({ clearFiles });
 
 function handleDragOver(e: DragEvent) {
   if (e.dataTransfer?.types?.includes("Files")) {
