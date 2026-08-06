@@ -121,7 +121,12 @@ export async function resolveAttachments(
             const url = `${configuration.serverUrl}/v1/uploads/${encodeURIComponent(attachment.blobId)}/download`
             const response = await axios.get<{ t?: string; c?: string }>(url, {
                 headers: { 'Authorization': `Bearer ${context.token}` },
-                responseType: 'json'
+                responseType: 'json',
+                // Bound response buffering: the largest legitimate envelope is a
+                // 25 MB attachment after base64 (~34 MB) plus encryption and JSON
+                // overhead, so 64 MB gives ample headroom while preventing an
+                // oversized blob from exhausting memory.
+                maxContentLength: 64 * 1024 * 1024
             })
             const envelope = response.data
             if (!envelope || envelope.t !== 'encrypted' || typeof envelope.c !== 'string') {
