@@ -267,6 +267,7 @@ onUnmounted(() => {
         ref="imageRef"
         :src="props.src"
         :alt="props.alt"
+        decoding="async"
         class="max-w-none select-none transition-transform duration-100"
         :style="imageStyle"
         draggable="false"
