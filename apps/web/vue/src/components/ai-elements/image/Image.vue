@@ -16,5 +16,5 @@ const src = computed(() => `data:${props.mediaType};base64,${props.base64}`);
 </script>
 
 <template>
-  <img :class="classes" :src="src" v-bind="$attrs" />
+  <img :class="classes" decoding="async" :src="src" v-bind="$attrs" />
 </template>
