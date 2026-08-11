@@ -84,7 +84,7 @@
     "lucide-vue-next": "^1.0.0",
     "media-chrome": "^4.19.1",
     "motion-v": "^2.2.1",
-    "nanoid": "^5.1.11",
+    "nanoid": "^5.1.16",
     "pinia": "^3.0.4",
     "reka-ui": "^2.9.8",
     "shiki": "^4.2.0",
