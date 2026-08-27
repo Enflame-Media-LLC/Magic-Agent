@@ -36,7 +36,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20260603.1",
     "@happy/lint-rules": "workspace:*",
-    "@types/node": "^25.9.1",
+    "@types/node": "^26.3.0",
     "oxlint": "^1.68.0",
     "typescript": "^6.0.3",
     "wrangler": "^4.97.0"
