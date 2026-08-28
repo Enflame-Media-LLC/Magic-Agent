@@ -34,7 +34,7 @@
   "license": "MIT",
   "private": true,
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260603.1",
+    "@cloudflare/workers-types": "^5.20260825.1",
     "@happy/lint-rules": "workspace:*",
     "@types/node": "^25.9.1",
     "oxlint": "^1.68.0",
