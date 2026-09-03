@@ -29,10 +29,10 @@
   "devDependencies": {
     "quicktype": "^23.2.6",
     "quicktype-core": "^23.2.6",
-    "tsdown": "^0.22.1",
-    "tsx": "^4.22.4",
+    "tsdown": "^0.22.14",
+    "tsx": "^4.23.13",
     "typescript": "^6.0.3",
-    "zod": "^4.4.3"
+    "zod": "^4.5.4"
   },
   "scripts": {
     "preinstall": "node -e \"if(!process.env.INIT_CWD?.endsWith('/magicagent')){console.error('❌ Run yarn install from monorepo root');process.exit(1)}\"",
