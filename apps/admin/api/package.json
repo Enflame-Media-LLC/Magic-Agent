@@ -46,7 +46,7 @@
     "@hono/zod-openapi": "^1.4.0",
     "better-auth": "^1.6.14",
     "drizzle-orm": "^1.0.0-rc.2",
-    "hono": "^4.12.23",
+    "hono": "^4.13.5",
     "zod": "^4.4.3"
   }
 }
